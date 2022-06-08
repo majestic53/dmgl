@@ -19,22 +19,25 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <common.h>
+#ifndef DMGL_MBC0_H_
+#define DMGL_MBC0_H_
+
+#include <mapper.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-void *dmgl_buffer_allocate(size_t length)
-{
-    return calloc(length, sizeof(uint8_t));
-}
+dmgl_error_e dmgl_mbc0_initialize(const dmgl_cartridge_t *cartridge, void **context);
 
-void dmgl_buffer_free(void *buffer)
-{
-    free(buffer);
-}
+uint8_t dmgl_mbc0_read(const dmgl_cartridge_t *cartridge, void *context, uint16_t address);
+
+void dmgl_mbc0_uninitialize(void *context);
+
+void dmgl_mbc0_write(dmgl_cartridge_t *cartridge, void *context, uint16_t address, uint8_t value);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+#endif /* DMGL_MBC0_H_ */

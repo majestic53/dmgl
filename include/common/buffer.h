@@ -28,7 +28,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-dmgl_error_e dmgl_buffer_allocate(void **buffer, size_t length);
+void *dmgl_buffer_allocate(size_t length);
 
 void dmgl_buffer_free(void *buffer);
 

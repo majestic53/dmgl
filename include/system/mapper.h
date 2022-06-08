@@ -49,7 +49,7 @@ const char *dmgl_mapper_title(const dmgl_mapper_t *mapper);
 
 void dmgl_mapper_uninitialize(dmgl_mapper_t *mapper);
 
-void dmgl_mapper_write(const dmgl_mapper_t *mapper, uint16_t address, uint8_t value);
+void dmgl_mapper_write(dmgl_mapper_t *mapper, uint16_t address, uint8_t value);
 
 #ifdef __cplusplus
 }

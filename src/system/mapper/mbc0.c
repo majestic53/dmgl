@@ -19,90 +19,53 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <bus.h>
-#include <memory.h>
-
-typedef struct {
-    dmgl_memory_t memory;
-
-    /* TODO: ADD SUBSYSTEMS */
-
-} dmgl_bus_t;
-
-static dmgl_bus_t g_bus = {};
+#include <mbc0.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-dmgl_error_e dmgl_bus_clock(void)
+dmgl_error_e dmgl_mbc0_initialize(const dmgl_cartridge_t *cartridge, void **context)
 {
-    dmgl_error_e result;
+    *context = NULL;
 
-    /* TODO: CLOCK SUBSYSTEMS */
-    result = DMGL_COMPLETE;
-    /* ---- */
-
-    return result;
+    return DMGL_SUCCESS;
 }
 
-dmgl_error_e dmgl_bus_initialize(const dmgl_t *context)
-{
-    dmgl_error_e result;
-
-    if((result = dmgl_memory_initialize(&g_bus.memory, context)) != DMGL_SUCCESS) {
-        goto exit;
-    }
-
-    /* TODO: INITIALIZE SUBSYSTEMS */
-
-exit:
-    return result;
-}
-
-void dmgl_bus_interrupt(dmgl_interrupt_e interrupt)
-{
-    dmgl_bus_write(0xFF0F, dmgl_bus_read(0xFF0F) | (1 << interrupt));
-}
-
-uint8_t dmgl_bus_read(uint16_t address)
+uint8_t dmgl_mbc0_read(const dmgl_cartridge_t *cartridge, void *context, uint16_t address)
 {
     uint8_t result = 0;
 
     switch(address) {
-
-        /* TODO: READ BYTE FROM SUBSYSTEMS */
-
+        case 0x0000 ... 0x3FFF:
+            result = dmgl_cartridge_rom_read(cartridge, 0, address - 0x0000);
+            break;
+        case 0x4000 ... 0x7FFF:
+            result = dmgl_cartridge_rom_read(cartridge, 1, address - 0x4000);
+            break;
+        case 0xA000 ... 0xBFFF:
+            result = dmgl_cartridge_ram_read(cartridge, 0, address - 0xA000);
+            break;
         default:
-            result = dmgl_memory_read(&g_bus.memory, address);
             break;
     }
 
     return result;
 }
 
-const char *dmgl_bus_title(void)
+void dmgl_mbc0_uninitialize(void *context)
 {
-    return dmgl_memory_title(&g_bus.memory);
+    return;
 }
 
-void dmgl_bus_uninitialize(void)
-{
-    /* TODO: UNINITIALIZE SUBSYSTEMS */
-
-    dmgl_memory_uninitialize(&g_bus.memory);
-    memset(&g_bus, 0, sizeof(g_bus));
-}
-
-void dmgl_bus_write(uint16_t address, uint8_t value)
+void dmgl_mbc0_write(dmgl_cartridge_t *cartridge, void *context, uint16_t address, uint8_t value)
 {
 
     switch(address) {
-
-        /* TODO: WRITE BYTE TO SUBSYSTEMS */
-
+        case 0xA000 ... 0xBFFF:
+            dmgl_cartridge_ram_write(cartridge, 0, address - 0xA000, value);
+            break;
         default:
-            dmgl_memory_write(&g_bus.memory, address, value);
             break;
     }
 }

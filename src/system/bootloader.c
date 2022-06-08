@@ -78,7 +78,7 @@ uint8_t dmgl_bootloader_read(const dmgl_bootloader_t *bootloader, uint16_t addre
 
     switch(address) {
         case 0x0000 ... 0x00FF:
-            result = bootloader->enabled ? bootloader->data[address - 0x0000] : 0x00;
+            result = bootloader->data[address - 0x0000];
             break;
         default:
             break;
