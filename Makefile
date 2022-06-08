@@ -33,11 +33,11 @@ clean:
 
 .PHONY: debug
 debug:
-	#@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) patch
+	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) patch
 	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) build $(DEBUG_FLAGS)
 
 .PHONY: release
 release:
-	#@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) patch
+	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) patch
 	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) build $(RELEASE_FLAGS)
 	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) strip
