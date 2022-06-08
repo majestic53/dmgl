@@ -65,6 +65,7 @@ dmgl_error_e dmgl_bootloader_initialize(dmgl_bootloader_t *bootloader, const uin
         }
 
         bootloader->data = data;
+        bootloader->enabled = true;
     }
 
 exit:
