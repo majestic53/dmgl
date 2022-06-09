@@ -17,34 +17,43 @@
 # AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-SOURCE_DIRECTORY=./src/
-TEST_DIRECTORY=./test/
+BINARY_FILE=test_$(FILE)
+OBJECT_FILES=$(patsubst %.c,%.o,$(shell find ./ -maxdepth 1 -name '*.c'))
 
-BUILD_FLAGS=-march=native\ -mtune=native\ -std=c11\ -Wall\ -Werror
-DEBUG_FLAGS=FLAGS=$(BUILD_FLAGS)\ -DDEBUG\ -g
-RELEASE_FLAGS=FLAGS=$(BUILD_FLAGS)\ -O3
-MAKE_FLAGS=--no-print-directory -C
+COVERAGE_FLAGS=-fprofile-arcs -ftest-coverage
+INCLUDE_FLAGS=$(subst $(INCLUDE_DIRECTORY),-I$(INCLUDE_DIRECTORY),$(shell find $(INCLUDE_DIRECTORY) -maxdepth 2 -type d))
+TEST_INCLUDE_FLAGS=$(subst $(TEST_INCLUDE_DIRECTORY),-I$(TEST_INCLUDE_DIRECTORY),$(shell find $(TEST_INCLUDE_DIRECTORY) -maxdepth 2 -type d))
 
 .PHONY: all
-all: release
+all: build
+
+.PHONY: build
+build: $(BINARY_FILE)
 
 .PHONY: clean
 clean:
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) clean
-	@make $(MAKE_FLAGS) $(TEST_DIRECTORY) clean
+	@rm -f $(BINARY_FILE)
+	@rm -f $(OBJECT_FILES)
+	@rm -f $(FILE).c.gcov
+	@rm -f $(SOURCE_DIRECTORY)$(FILE).gcda
+	@rm -f $(SOURCE_DIRECTORY)$(FILE).gcno
+	@rm -f $(SOURCE_DIRECTORY)$(FILE).o
 
-.PHONY: debug
-debug:
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) patch
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) build $(DEBUG_FLAGS)
+.PHONY: coverage
+coverage:
+	@gcov $(SOURCE_DIRECTORY)$(FILE).c
 
-.PHONY: release
-release:
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) patch
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) build $(RELEASE_FLAGS)
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) strip
+.PHONY: run
+run:
+	@if ! ./$(BINARY_FILE); then \
+		exit 1; \
+	fi
 
-.PHONY: test
-test:
-	@make $(MAKE_FLAGS) $(TEST_DIRECTORY) build $(DEBUG_FLAGS)
-	@make $(MAKE_FLAGS) $(TEST_DIRECTORY) run
+$(SOURCE_DIRECTORY)$(FILE).o: $(SOURCE_DIRECTORY)$(FILE).c
+	$(CC) $(FLAGS) $(COVERAGE_FLAGS) $(INCLUDE_FLAGS) -c -o $@ $<
+
+$(BINARY_FILE): $(SOURCE_DIRECTORY)$(FILE).o $(OBJECT_FILES)
+	$(CC) $(FLAGS) $(COVERAGE_FLAGS) $(SOURCE_DIRECTORY)$(FILE).o $(OBJECT_FILES) -o $@
+
+%.o: %.c
+	$(CC) $(FLAGS) $(INCLUDE_FLAGS) $(TEST_INCLUDE_FLAGS) -c -o $@ $<

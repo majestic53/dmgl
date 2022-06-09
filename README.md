@@ -1,6 +1,6 @@
 # DMGL (DMG-Lite)
 
-[![License: MIT](https://shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/majestic53/dmgl/blob/master/LICENSE.md) [![Build Status](https://github.com/majestic53/dmgl/workflows/Build/badge.svg)](https://github.com/majestic53/dmgl/actions/workflows/build.yml)
+[![License: MIT](https://shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/majestic53/dmgl/blob/master/LICENSE.md) [![Build Status](https://github.com/majestic53/dmgl/workflows/Build/badge.svg)](https://github.com/majestic53/dmgl/actions/workflows/build.yml) [![Test Status](https://github.com/majestic53/dmgl/workflows/Test/badge.svg)](https://github.com/majestic53/dmgl/actions/workflows/test.yml)
 
 ### A lightweight Gameboy emulator, written in C.
 

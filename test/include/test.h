@@ -19,32 +19,18 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef DMGL_BOOTLOADER_H_
-#define DMGL_BOOTLOADER_H_
+#ifndef DMGL_TEST_H_
+#define DMGL_TEST_H_
 
-#include <common.h>
+#include <assert.h>
+#include <mock.h>
 
-typedef struct {
-    const uint8_t *data;
-    bool enabled;
-} dmgl_bootloader_t;
+#define DMGL_TEST_RESULT(_RESULT_) \
+    fprintf(((_RESULT_) != DMGL_SUCCESS) ? stderr : stdout, "[%s%s%s] %s\n", \
+        ((_RESULT_) != DMGL_SUCCESS) ? "\x1b[91m" : "\x1b[92m", \
+        ((_RESULT_) != DMGL_SUCCESS) ? "FAIL" : "PASS", \
+        "\x1b[0m", __FUNCTION__)
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+typedef dmgl_error_e (*dmgl_test_cb)(void);
 
-void dmgl_bootloader_disable(dmgl_bootloader_t *bootloader);
-
-bool dmgl_bootloader_enabled(const dmgl_bootloader_t *bootloader);
-
-dmgl_error_e dmgl_bootloader_initialize(dmgl_bootloader_t *bootloader, const uint8_t *data, size_t length);
-
-uint8_t dmgl_bootloader_read(const dmgl_bootloader_t *bootloader, uint16_t address);
-
-void dmgl_bootloader_uninitialize(dmgl_bootloader_t *bootloader);
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-#endif /* DMGL_BOOTLOADER_H_ */
+#endif /* DMGL_TEST_H_ */

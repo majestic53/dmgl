@@ -44,14 +44,14 @@ exit:
     return result;
 }
 
-bool dmgl_bootloader_enabled(const dmgl_bootloader_t *bootloader)
-{
-    return bootloader->enabled;
-}
-
 void dmgl_bootloader_disable(dmgl_bootloader_t *bootloader)
 {
     bootloader->enabled = false;
+}
+
+bool dmgl_bootloader_enabled(const dmgl_bootloader_t *bootloader)
+{
+    return bootloader->enabled;
 }
 
 dmgl_error_e dmgl_bootloader_initialize(dmgl_bootloader_t *bootloader, const uint8_t *data, size_t length)

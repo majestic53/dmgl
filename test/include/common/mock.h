@@ -19,32 +19,20 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef DMGL_BOOTLOADER_H_
-#define DMGL_BOOTLOADER_H_
-
-#include <common.h>
-
-typedef struct {
-    const uint8_t *data;
-    bool enabled;
-} dmgl_bootloader_t;
+#ifndef DMGL_MOCK_H_
+#define DMGL_MOCK_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-void dmgl_bootloader_disable(dmgl_bootloader_t *bootloader);
-
-bool dmgl_bootloader_enabled(const dmgl_bootloader_t *bootloader);
-
-dmgl_error_e dmgl_bootloader_initialize(dmgl_bootloader_t *bootloader, const uint8_t *data, size_t length);
-
-uint8_t dmgl_bootloader_read(const dmgl_bootloader_t *bootloader, uint16_t address);
-
-void dmgl_bootloader_uninitialize(dmgl_bootloader_t *bootloader);
+dmgl_error_e dmgl_error_set(const char *file, const char *function, size_t line, const char *format, ...)
+{
+    return DMGL_FAILURE;
+}
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* DMGL_BOOTLOADER_H_ */
+#endif /* DMGL_MOCK_H_ */

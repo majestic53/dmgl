@@ -17,34 +17,35 @@
 # AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-SOURCE_DIRECTORY=./src/
-TEST_DIRECTORY=./test/
+TEST_DIRECTORIES=$(shell find . -maxdepth 2 -type d -not -path '.' -not -path '*include*')
 
-BUILD_FLAGS=-march=native\ -mtune=native\ -std=c11\ -Wall\ -Werror
-DEBUG_FLAGS=FLAGS=$(BUILD_FLAGS)\ -DDEBUG\ -g
-RELEASE_FLAGS=FLAGS=$(BUILD_FLAGS)\ -O3
 MAKE_FLAGS=--no-print-directory -C
 
 .PHONY: all
-all: release
+all: build
+
+.PHONY: build
+build:
+	@for test in $(TEST_DIRECTORIES); do \
+		make $(MAKE_FLAGS) $$test build; \
+	done
 
 .PHONY: clean
 clean:
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) clean
-	@make $(MAKE_FLAGS) $(TEST_DIRECTORY) clean
+	@for test in $(TEST_DIRECTORIES); do \
+		make $(MAKE_FLAGS) $$test clean; \
+	done
 
-.PHONY: debug
-debug:
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) patch
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) build $(DEBUG_FLAGS)
-
-.PHONY: release
-release:
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) patch
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) build $(RELEASE_FLAGS)
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) strip
-
-.PHONY: test
-test:
-	@make $(MAKE_FLAGS) $(TEST_DIRECTORY) build $(DEBUG_FLAGS)
-	@make $(MAKE_FLAGS) $(TEST_DIRECTORY) run
+.PHONY: run
+run:
+	@result=0; \
+	for test in $(TEST_DIRECTORIES); do \
+		if ! make $(MAKE_FLAGS) $$test run; then \
+			result=1; \
+		else \
+			make $(MAKE_FLAGS) $$test coverage; \
+		fi \
+	done; \
+	if [ $$result -ne 0 ]; then \
+		exit 1; \
+	fi

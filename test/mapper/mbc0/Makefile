@@ -17,34 +17,10 @@
 # AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-SOURCE_DIRECTORY=./src/
-TEST_DIRECTORY=./test/
+INCLUDE_DIRECTORY=../../../include/
+SOURCE_DIRECTORY=../../../src/system/mapper/
+TEST_INCLUDE_DIRECTORY=../../include/
 
-BUILD_FLAGS=-march=native\ -mtune=native\ -std=c11\ -Wall\ -Werror
-DEBUG_FLAGS=FLAGS=$(BUILD_FLAGS)\ -DDEBUG\ -g
-RELEASE_FLAGS=FLAGS=$(BUILD_FLAGS)\ -O3
-MAKE_FLAGS=--no-print-directory -C
+FILE=mbc0
 
-.PHONY: all
-all: release
-
-.PHONY: clean
-clean:
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) clean
-	@make $(MAKE_FLAGS) $(TEST_DIRECTORY) clean
-
-.PHONY: debug
-debug:
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) patch
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) build $(DEBUG_FLAGS)
-
-.PHONY: release
-release:
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) patch
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) build $(RELEASE_FLAGS)
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) strip
-
-.PHONY: test
-test:
-	@make $(MAKE_FLAGS) $(TEST_DIRECTORY) build $(DEBUG_FLAGS)
-	@make $(MAKE_FLAGS) $(TEST_DIRECTORY) run
+include ../../include/test.mk
