@@ -23,9 +23,15 @@
 #include <test.h>
 
 typedef struct {
+    dmgl_bootloader_t bootloader;
+    uint8_t data[256];
 
-    /* TODO */
-
+    struct {
+        const void *data;
+        uint8_t value;
+        size_t begin;
+        size_t end;
+    } checksum;
 } dmgl_test_bootloader_t;
 
 static dmgl_test_bootloader_t g_test_bootloader = {};
@@ -36,9 +42,11 @@ extern "C" {
 
 uint8_t dmgl_checksum(const void *data, size_t begin, size_t end)
 {
-    /* TODO */
-    return 0;
-    /* ---- */
+    g_test_bootloader.checksum.data = data;
+    g_test_bootloader.checksum.begin = begin;
+    g_test_bootloader.checksum.end = end;
+
+    return g_test_bootloader.checksum.value;
 }
 
 static inline void dmgl_test_initialize(void)
@@ -51,10 +59,23 @@ static dmgl_error_e dmgl_test_bootloader_disable(void)
     dmgl_error_e result = DMGL_SUCCESS;
 
     dmgl_test_initialize();
+    dmgl_bootloader_disable(&g_test_bootloader.bootloader);
 
-    /* TODO */
+    if(DMGL_ASSERT(g_test_bootloader.bootloader.enabled == false)) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
 
-//exit:
+    dmgl_test_initialize();
+    g_test_bootloader.bootloader.enabled = true;
+    dmgl_bootloader_disable(&g_test_bootloader.bootloader);
+
+    if(DMGL_ASSERT(g_test_bootloader.bootloader.enabled == false)) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
@@ -66,9 +87,20 @@ static dmgl_error_e dmgl_test_bootloader_enabled(void)
 
     dmgl_test_initialize();
 
-    /* TODO */
+    if(DMGL_ASSERT(dmgl_bootloader_enabled(&g_test_bootloader.bootloader) == false)) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
 
-//exit:
+    dmgl_test_initialize();
+    g_test_bootloader.bootloader.enabled = true;
+
+    if(DMGL_ASSERT(dmgl_bootloader_enabled(&g_test_bootloader.bootloader) == true)) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
@@ -80,9 +112,57 @@ static dmgl_error_e dmgl_test_bootloader_initialize(void)
 
     dmgl_test_initialize();
 
-    /* TODO */
+    if(DMGL_ASSERT((dmgl_bootloader_initialize(&g_test_bootloader.bootloader, NULL, 0) == DMGL_SUCCESS)
+            && (g_test_bootloader.bootloader.data == NULL)
+            && (g_test_bootloader.bootloader.enabled == false))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
 
-//exit:
+    dmgl_test_initialize();
+
+    if(DMGL_ASSERT((dmgl_bootloader_initialize(&g_test_bootloader.bootloader, NULL, 0) == DMGL_SUCCESS)
+            && (g_test_bootloader.bootloader.data == NULL)
+            && (g_test_bootloader.bootloader.enabled == false))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+    dmgl_test_initialize();
+
+    if(DMGL_ASSERT((dmgl_bootloader_initialize(&g_test_bootloader.bootloader, g_test_bootloader.data, 1) == DMGL_FAILURE)
+            && (g_test_bootloader.bootloader.data == NULL)
+            && (g_test_bootloader.bootloader.enabled == false))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+    dmgl_test_initialize();
+
+    if(DMGL_ASSERT((dmgl_bootloader_initialize(&g_test_bootloader.bootloader, g_test_bootloader.data, 256) == DMGL_FAILURE)
+            && (g_test_bootloader.bootloader.data == NULL)
+            && (g_test_bootloader.bootloader.enabled == false)
+            && (g_test_bootloader.checksum.data == g_test_bootloader.data)
+            && (g_test_bootloader.checksum.begin == 0)
+            && (g_test_bootloader.checksum.end == 255))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+    dmgl_test_initialize();
+    g_test_bootloader.checksum.value = 0x92;
+
+    if(DMGL_ASSERT((dmgl_bootloader_initialize(&g_test_bootloader.bootloader, g_test_bootloader.data, 256) == DMGL_SUCCESS)
+            && (g_test_bootloader.bootloader.data == g_test_bootloader.data)
+            && (g_test_bootloader.bootloader.enabled == true)
+            && (g_test_bootloader.checksum.data == g_test_bootloader.data)
+            && (g_test_bootloader.checksum.begin == 0)
+            && (g_test_bootloader.checksum.end == 255))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
@@ -90,13 +170,35 @@ static dmgl_error_e dmgl_test_bootloader_initialize(void)
 
 static dmgl_error_e dmgl_test_bootloader_read(void)
 {
+    uint8_t data = 0x00;
     dmgl_error_e result = DMGL_SUCCESS;
 
     dmgl_test_initialize();
+    g_test_bootloader.bootloader.data = g_test_bootloader.data;
 
-    /* TODO */
+    for(uint32_t address = 0x0000; address <= 0xFFFF; ++address, ++data) {
+        uint8_t expected = 0x00;
 
-//exit:
+        for(int enabled = false; enabled <= true; ++enabled) {
+            g_test_bootloader.bootloader.enabled = enabled;
+
+            switch(address) {
+                case 0x0000 ... 0x00FF:
+                    g_test_bootloader.data[address] = data;
+                    expected = enabled ? data : 0x00;
+                    break;
+                default:
+                    break;
+            }
+
+            if(DMGL_ASSERT(dmgl_bootloader_read(&g_test_bootloader.bootloader, address) == expected)) {
+                result = DMGL_FAILURE;
+                goto exit;
+            }
+        }
+    }
+
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
@@ -107,10 +209,17 @@ static dmgl_error_e dmgl_test_bootloader_uninitialize(void)
     dmgl_error_e result = DMGL_SUCCESS;
 
     dmgl_test_initialize();
+    g_test_bootloader.bootloader.data = g_test_bootloader.data;
+    g_test_bootloader.bootloader.enabled = true;
+    dmgl_bootloader_uninitialize(&g_test_bootloader.bootloader);
 
-    /* TODO */
+    if(DMGL_ASSERT((g_test_bootloader.bootloader.data == NULL)
+            && (g_test_bootloader.bootloader.enabled == false))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
 
-//exit:
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;

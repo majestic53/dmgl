@@ -34,17 +34,17 @@ clean:
 	@make $(MAKE_FLAGS) $(TEST_DIRECTORY) clean
 
 .PHONY: debug
-debug:
+debug: clean
 	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) patch
 	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) build $(DEBUG_FLAGS)
 
 .PHONY: release
-release:
+release: clean
 	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) patch
 	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) build $(RELEASE_FLAGS)
 	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) strip
 
 .PHONY: test
-test:
+test: clean
 	@make $(MAKE_FLAGS) $(TEST_DIRECTORY) build $(DEBUG_FLAGS)
 	@make $(MAKE_FLAGS) $(TEST_DIRECTORY) run
