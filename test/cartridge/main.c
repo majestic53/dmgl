@@ -66,8 +66,6 @@ void *dmgl_buffer_allocate(size_t length)
 {
     void *result = NULL;
 
-fprintf(stdout, "%zu\n", length);
-
     switch(length) {
         case 8:
             result = g_test_cartridge.ram.allocate_bank ? g_test_cartridge.ram.bank : NULL;
