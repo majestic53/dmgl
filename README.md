@@ -8,7 +8,7 @@ The goal of `DMGL` is to emulate the original Gameboy hardware with enough accur
 
 __NOTE__: `DMGL` is a still a work-in-progress. Some features may be incomplete or may contain bugs.
 
-## Building
+## Build from Source
 
 `DMGL` is dependant on the `SDL2` library. If you are on a Debian-based systems, install this library using apt:
 
