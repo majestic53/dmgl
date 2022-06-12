@@ -19,19 +19,66 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef DMGL_DEFINE_H_
-#define DMGL_DEFINE_H_
+#include <processor.h>
 
-#include <stdarg.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <dmgl.h>
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
-#define DMGL_MAJOR 0
-#define DMGL_MINOR 1
-#define DMGL_PATCH 0x85908e9
+dmgl_error_e dmgl_processor_cycle(dmgl_processor_t *processor)
+{
+    dmgl_error_e result;
 
-#endif /* DMGL_DEFINE_H_ */
+    /* TODO */
+    result = DMGL_SUCCESS;
+    /* ---- */
+
+    return result;
+}
+
+dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, const dmgl_t *context)
+{
+    dmgl_error_e result;
+
+    /* TODO */
+    result = DMGL_SUCCESS;
+    /* ---- */
+
+    return result;
+}
+
+uint8_t dmgl_processor_read(const dmgl_processor_t *processor, uint16_t address)
+{
+    uint8_t result = 0;
+
+    switch(address) {
+
+        /* TODO */
+
+        default:
+            break;
+    }
+
+    return result;
+}
+
+void dmgl_processor_uninitialize(dmgl_processor_t *processor)
+{
+    /* TODO */
+}
+
+void dmgl_processor_write(dmgl_processor_t *processor, uint16_t address, uint8_t value)
+{
+
+    switch(address) {
+
+        /* TODO */
+
+        default:
+            break;
+    }
+}
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
