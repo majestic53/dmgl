@@ -23,9 +23,22 @@
 #include <test.h>
 
 typedef struct {
+    dmgl_cartridge_t cartridge;
+    void *context;
 
-    /* TODO */
+    struct {
+        const dmgl_cartridge_t *cartridge;
+        size_t index;
+        uint16_t address;
+        uint8_t value;
+    } ram;
 
+    struct {
+        const dmgl_cartridge_t *cartridge;
+        size_t index;
+        uint16_t address;
+        uint8_t value;
+    } rom;
 } dmgl_test_mbc0_t;
 
 static dmgl_test_mbc0_t g_test_mbc0 = {};
@@ -36,21 +49,28 @@ extern "C" {
 
 uint8_t dmgl_cartridge_ram_read(const dmgl_cartridge_t *cartridge, size_t index, uint16_t address)
 {
-    /* TODO */
-    return 0;
-    /* ---- */
+    g_test_mbc0.ram.cartridge = cartridge;
+    g_test_mbc0.ram.index = index;
+    g_test_mbc0.ram.address = address;
+
+    return g_test_mbc0.ram.value;
 }
 
 void dmgl_cartridge_ram_write(dmgl_cartridge_t *cartridge, size_t index, uint16_t address, uint8_t value)
 {
-    /* TODO */
+    g_test_mbc0.ram.cartridge = cartridge;
+    g_test_mbc0.ram.index = index;
+    g_test_mbc0.ram.address = address;
+    g_test_mbc0.ram.value = value;
 }
 
 uint8_t dmgl_cartridge_rom_read(const dmgl_cartridge_t *cartridge, size_t index, uint16_t address)
 {
-    /* TODO */
-    return 0;
-    /* ---- */
+    g_test_mbc0.rom.cartridge = cartridge;
+    g_test_mbc0.rom.index = index;
+    g_test_mbc0.rom.address = address;
+
+    return g_test_mbc0.rom.value;
 }
 
 static inline void dmgl_test_initialize(void)
@@ -63,10 +83,15 @@ static dmgl_error_e dmgl_test_mbc0_initialize(void)
     dmgl_error_e result = DMGL_SUCCESS;
 
     dmgl_test_initialize();
+    g_test_mbc0.context = (void *)1;
 
-    /* TODO */
+    if(DMGL_ASSERT((dmgl_mbc0_initialize(&g_test_mbc0.cartridge, &g_test_mbc0.context) == DMGL_SUCCESS)
+            && (g_test_mbc0.context == NULL))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
 
-//exit:
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
@@ -74,13 +99,93 @@ static dmgl_error_e dmgl_test_mbc0_initialize(void)
 
 static dmgl_error_e dmgl_test_mbc0_read(void)
 {
+    uint8_t data = 0x00;
     dmgl_error_e result = DMGL_SUCCESS;
 
-    dmgl_test_initialize();
+    for(uint32_t address = 0x0000; address <= 0xFFFF; ++address, ++data) {
+        uint8_t value;
 
-    /* TODO */
+        dmgl_test_initialize();
 
-//exit:
+        switch(address) {
+            case 0x0000 ... 0x3FFF:
+            case 0x4000 ... 0x7FFF:
+                g_test_mbc0.rom.value = data;
+                break;
+            case 0xA000 ... 0xBFFF:
+                g_test_mbc0.ram.value = data;
+                break;
+            default:
+                break;
+        }
+
+        value = dmgl_mbc0_read(&g_test_mbc0.cartridge, g_test_mbc0.context, address);
+
+        switch(address) {
+            case 0x0000 ... 0x3FFF:
+
+                if(DMGL_ASSERT((value == data)
+                        && (g_test_mbc0.ram.cartridge == NULL)
+                        && (g_test_mbc0.ram.index == 0)
+                        && (g_test_mbc0.ram.address == 0x0000)
+                        && (g_test_mbc0.ram.value == 0x00)
+                        && (g_test_mbc0.rom.cartridge == &g_test_mbc0.cartridge)
+                        && (g_test_mbc0.rom.index == 0)
+                        && (g_test_mbc0.rom.address == address - 0x0000)
+                        && (g_test_mbc0.rom.value == data))) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            case 0x4000 ... 0x7FFF:
+
+                if(DMGL_ASSERT((value == data)
+                        && (g_test_mbc0.ram.cartridge == NULL)
+                        && (g_test_mbc0.ram.index == 0)
+                        && (g_test_mbc0.ram.address == 0x0000)
+                        && (g_test_mbc0.ram.value == 0x00)
+                        && (g_test_mbc0.rom.cartridge == &g_test_mbc0.cartridge)
+                        && (g_test_mbc0.rom.index == 1)
+                        && (g_test_mbc0.rom.address == address - 0x4000)
+                        && (g_test_mbc0.rom.value == data))) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            case 0xA000 ... 0xBFFF:
+
+                if(DMGL_ASSERT((value == data)
+                        && (g_test_mbc0.ram.cartridge == &g_test_mbc0.cartridge)
+                        && (g_test_mbc0.ram.index == 0)
+                        && (g_test_mbc0.ram.address == address - 0xA000)
+                        && (g_test_mbc0.ram.value == data)
+                        && (g_test_mbc0.rom.cartridge == NULL)
+                        && (g_test_mbc0.rom.index == 0)
+                        && (g_test_mbc0.rom.address == 0x0000)
+                        && (g_test_mbc0.rom.value == 0x00))) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            default:
+
+                if(DMGL_ASSERT((value == 0)
+                        && (g_test_mbc0.ram.cartridge == NULL)
+                        && (g_test_mbc0.ram.index == 0)
+                        && (g_test_mbc0.ram.address == 0x0000)
+                        && (g_test_mbc0.ram.value == 0x00)
+                        && (g_test_mbc0.rom.cartridge == NULL)
+                        && (g_test_mbc0.rom.index == 0)
+                        && (g_test_mbc0.rom.address == 0x0000)
+                        && (g_test_mbc0.rom.value == 0x00))) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+        }
+    }
+
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
@@ -91,10 +196,14 @@ static dmgl_error_e dmgl_test_mbc0_uninitialize(void)
     dmgl_error_e result = DMGL_SUCCESS;
 
     dmgl_test_initialize();
+    dmgl_mbc0_uninitialize(&g_test_mbc0.context);
 
-    /* TODO */
+    if(DMGL_ASSERT(g_test_mbc0.context == NULL)) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
 
-//exit:
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
@@ -102,13 +211,46 @@ static dmgl_error_e dmgl_test_mbc0_uninitialize(void)
 
 static dmgl_error_e dmgl_test_mbc0_write(void)
 {
+    uint8_t data = 0x00;
     dmgl_error_e result = DMGL_SUCCESS;
 
-    dmgl_test_initialize();
+    for(uint32_t address = 0x0000; address <= 0xFFFF; ++address, ++data) {
+        dmgl_test_initialize();
+        dmgl_mbc0_write(&g_test_mbc0.cartridge, g_test_mbc0.context, address, data);
 
-    /* TODO */
+        switch(address) {
+            case 0xA000 ... 0xBFFF:
 
-//exit:
+                if(DMGL_ASSERT((g_test_mbc0.ram.cartridge == &g_test_mbc0.cartridge)
+                        && (g_test_mbc0.ram.index == 0)
+                        && (g_test_mbc0.ram.address == address - 0xA000)
+                        && (g_test_mbc0.ram.value == data)
+                        && (g_test_mbc0.rom.cartridge == NULL)
+                        && (g_test_mbc0.rom.index == 0)
+                        && (g_test_mbc0.rom.address == 0x0000)
+                        && (g_test_mbc0.rom.value == 0x00))) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            default:
+
+                if(DMGL_ASSERT((g_test_mbc0.ram.cartridge == NULL)
+                        && (g_test_mbc0.ram.index == 0)
+                        && (g_test_mbc0.ram.address == 0x0000)
+                        && (g_test_mbc0.ram.value == 0x00)
+                        && (g_test_mbc0.rom.cartridge == NULL)
+                        && (g_test_mbc0.rom.index == 0)
+                        && (g_test_mbc0.rom.address == 0x0000)
+                        && (g_test_mbc0.rom.value == 0x00))) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+        }
+    }
+
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;

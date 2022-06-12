@@ -23,9 +23,29 @@
 #include <test.h>
 
 typedef struct {
+    dmgl_memory_t memory;
 
-    /* TODO */
+    struct {
+        const dmgl_bootloader_t *bootloader;
+        const uint8_t *data;
+        size_t length;
+        uint16_t address;
+        uint8_t value;
+        bool enabled;
+        bool initialized;
+        dmgl_error_e status;
+    } bootloader;
 
+    struct {
+        const dmgl_mapper_t *mapper;
+        const uint8_t *data;
+        size_t length;
+        uint16_t address;
+        uint8_t value;
+        bool initialized;
+        const char *title;
+        dmgl_error_e status;
+    } mapper;
 } dmgl_test_memory_t;
 
 static dmgl_test_memory_t g_test_memory = {};
@@ -36,64 +56,77 @@ extern "C" {
 
 void dmgl_bootloader_disable(dmgl_bootloader_t *bootloader)
 {
-    /* TODO */
+    g_test_memory.bootloader.bootloader = bootloader;
+    g_test_memory.bootloader.enabled = false;
 }
 
 bool dmgl_bootloader_enabled(const dmgl_bootloader_t *bootloader)
 {
-    /* TODO */
-    return false;
-    /* ---- */
+    g_test_memory.bootloader.bootloader = bootloader;
+
+    return g_test_memory.bootloader.enabled;
 }
 
 dmgl_error_e dmgl_bootloader_initialize(dmgl_bootloader_t *bootloader, const uint8_t *data, size_t length)
 {
-    /* TODO */
-    return DMGL_SUCCESS;
-    /* ---- */
+    g_test_memory.bootloader.bootloader = bootloader;
+    g_test_memory.bootloader.data = data;
+    g_test_memory.bootloader.length = length;
+    g_test_memory.bootloader.initialized = true;
+
+    return g_test_memory.bootloader.status;
 }
 
 uint8_t dmgl_bootloader_read(const dmgl_bootloader_t *bootloader, uint16_t address)
 {
-    /* TODO */
-    return 0;
-    /* ---- */
+    g_test_memory.bootloader.bootloader = bootloader;
+    g_test_memory.bootloader.address = address;
+
+    return g_test_memory.bootloader.value;
 }
 
 void dmgl_bootloader_uninitialize(dmgl_bootloader_t *bootloader)
 {
-    /* TODO */
+    g_test_memory.bootloader.bootloader = bootloader;
+    g_test_memory.bootloader.initialized = false;
 }
 
 dmgl_error_e dmgl_mapper_initialize(dmgl_mapper_t *mapper, const uint8_t *data, size_t length)
 {
-    /* TODO */
-    return DMGL_SUCCESS;
-    /* ---- */
+    g_test_memory.mapper.mapper = mapper;
+    g_test_memory.mapper.data = data;
+    g_test_memory.mapper.length = length;
+    g_test_memory.mapper.initialized = true;
+
+    return g_test_memory.mapper.status;
 }
 
 uint8_t dmgl_mapper_read(const dmgl_mapper_t *mapper, uint16_t address)
 {
-    /* TODO */
-    return 0;
-    /* ---- */
+    g_test_memory.mapper.mapper = mapper;
+    g_test_memory.mapper.address = address;
+
+    return g_test_memory.mapper.value;
 }
 
 const char *dmgl_mapper_title(const dmgl_mapper_t *mapper)
 {
-    /* TODO */
-    return NULL;
-    /* ---- */
+    g_test_memory.mapper.mapper = mapper;
+
+    return g_test_memory.mapper.title;
 }
 
 void dmgl_mapper_uninitialize(dmgl_mapper_t *mapper)
 {
-    /* TODO */
+    g_test_memory.mapper.mapper = mapper;
+    g_test_memory.mapper.initialized = false;
 }
 
 void dmgl_mapper_write(dmgl_mapper_t *mapper, uint16_t address, uint8_t value)
 {
-    /* TODO */
+    g_test_memory.mapper.mapper = mapper;
+    g_test_memory.mapper.address = address;
+    g_test_memory.mapper.value = value;
 }
 
 static inline void dmgl_test_initialize(void)
@@ -103,13 +136,45 @@ static inline void dmgl_test_initialize(void)
 
 static dmgl_error_e dmgl_test_memory_initialize(void)
 {
+    dmgl_t context = {};
     dmgl_error_e result = DMGL_SUCCESS;
 
     dmgl_test_initialize();
+    g_test_memory.bootloader.status = DMGL_FAILURE;
 
-    /* TODO */
+    if(DMGL_ASSERT(dmgl_memory_initialize(&g_test_memory.memory, &context) == DMGL_FAILURE)) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
 
-//exit:
+    dmgl_test_initialize();
+    g_test_memory.mapper.status = DMGL_FAILURE;
+
+    if(DMGL_ASSERT(dmgl_memory_initialize(&g_test_memory.memory, &context) == DMGL_FAILURE)) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+    dmgl_test_initialize();
+    context.bootloader.data = (void *)1;
+    context.bootloader.length = 256;
+    context.cartridge.data = (void *)2;
+    context.cartridge.length = 512;
+
+    if(DMGL_ASSERT((dmgl_memory_initialize(&g_test_memory.memory, &context) == DMGL_SUCCESS)
+            && (g_test_memory.bootloader.bootloader == &g_test_memory.memory.bootloader)
+            && (g_test_memory.bootloader.data == (void *)1)
+            && (g_test_memory.bootloader.length == 256)
+            && (g_test_memory.bootloader.initialized == true)
+            && (g_test_memory.mapper.mapper == &g_test_memory.memory.mapper)
+            && (g_test_memory.mapper.data == (void *)2)
+            && (g_test_memory.mapper.length == 512)
+            && (g_test_memory.mapper.initialized == true))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
@@ -117,13 +182,88 @@ static dmgl_error_e dmgl_test_memory_initialize(void)
 
 static dmgl_error_e dmgl_test_memory_read(void)
 {
+    uint8_t data = 0x00;
     dmgl_error_e result = DMGL_SUCCESS;
 
-    dmgl_test_initialize();
+    for(uint32_t address = 0x0000; address <= 0xFFFF; ++address, ++data) {
+        dmgl_test_initialize();
 
-    /* TODO */
+        switch(address) {
+            case 0x0000 ... 0x00FF:
+                g_test_memory.bootloader.enabled = true;
+                g_test_memory.bootloader.value = data;
 
-//exit:
+                if(DMGL_ASSERT((dmgl_memory_read(&g_test_memory.memory, address) == data)
+                        && (g_test_memory.bootloader.bootloader == &g_test_memory.memory.bootloader)
+                        && (g_test_memory.bootloader.address == address))) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+
+                g_test_memory.bootloader.enabled = false;
+                g_test_memory.mapper.value = data;
+
+                if(DMGL_ASSERT((dmgl_memory_read(&g_test_memory.memory, address) == data)
+                        && (g_test_memory.mapper.mapper == &g_test_memory.memory.mapper)
+                        && (g_test_memory.mapper.address == address))) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            case 0x8000 ... 0x9FFF:
+                g_test_memory.memory.video[address - 0x8000] = data;
+
+                if(DMGL_ASSERT(dmgl_memory_read(&g_test_memory.memory, address) == data)) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            case 0xC000 ... 0xDFFF:
+                g_test_memory.memory.internal[address - 0xC000] = data;
+
+                if(DMGL_ASSERT(dmgl_memory_read(&g_test_memory.memory, address) == data)) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            case 0xE000 ... 0xFDFF:
+                g_test_memory.memory.internal[address - 0xE000] = data;
+
+                if(DMGL_ASSERT(dmgl_memory_read(&g_test_memory.memory, address) == data)) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            case 0xFE00 ... 0xFE9F:
+                g_test_memory.memory.sprite[address - 0xFE00] = data;
+
+                if(DMGL_ASSERT(dmgl_memory_read(&g_test_memory.memory, address) == data)) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            case 0xFF80 ... 0xFFFE:
+                g_test_memory.memory.high[address - 0xFF80] = data;
+
+                if(DMGL_ASSERT(dmgl_memory_read(&g_test_memory.memory, address) == data)) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            default:
+                g_test_memory.mapper.value = data;
+
+                if(DMGL_ASSERT((dmgl_memory_read(&g_test_memory.memory, address) == data)
+                        && (g_test_memory.mapper.mapper == &g_test_memory.memory.mapper)
+                        && (g_test_memory.mapper.address == address))) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+        }
+    }
+
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
@@ -134,10 +274,15 @@ static dmgl_error_e dmgl_test_memory_title(void)
     dmgl_error_e result = DMGL_SUCCESS;
 
     dmgl_test_initialize();
+    g_test_memory.mapper.title = "Test";
 
-    /* TODO */
+    if(DMGL_ASSERT(!strcmp(dmgl_memory_title(&g_test_memory.memory), "Test")
+            && (g_test_memory.mapper.mapper == &g_test_memory.memory.mapper))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
 
-//exit:
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
@@ -148,10 +293,19 @@ static dmgl_error_e dmgl_test_memory_uninitialize(void)
     dmgl_error_e result = DMGL_SUCCESS;
 
     dmgl_test_initialize();
+    g_test_memory.bootloader.initialized = true;
+    g_test_memory.mapper.initialized = true;
+    dmgl_memory_uninitialize(&g_test_memory.memory);
 
-    /* TODO */
+    if(DMGL_ASSERT((g_test_memory.bootloader.bootloader == &g_test_memory.memory.bootloader)
+            && (g_test_memory.bootloader.initialized == false)
+            && (g_test_memory.mapper.mapper == &g_test_memory.memory.mapper)
+            && (g_test_memory.mapper.initialized == false))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
 
-//exit:
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
@@ -159,13 +313,71 @@ static dmgl_error_e dmgl_test_memory_uninitialize(void)
 
 static dmgl_error_e dmgl_test_memory_write(void)
 {
+    uint8_t data = 0x00;
     dmgl_error_e result = DMGL_SUCCESS;
 
-    dmgl_test_initialize();
+    for(uint32_t address = 0x0000; address <= 0xFFFF; ++address, ++data) {
+        dmgl_test_initialize();
+        g_test_memory.bootloader.enabled = true;
+        dmgl_memory_write(&g_test_memory.memory, address, data);
 
-    /* TODO */
+        switch(address) {
+            case 0x8000 ... 0x9FFF:
 
-//exit:
+                if(DMGL_ASSERT(g_test_memory.memory.video[address - 0x8000] == data)) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            case 0xC000 ... 0xDFFF:
+
+                if(DMGL_ASSERT(g_test_memory.memory.internal[address - 0xC000] == data)) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            case 0xE000 ... 0xFDFF:
+
+                if(DMGL_ASSERT(g_test_memory.memory.internal[address - 0xE000] == data)) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            case 0xFE00 ... 0xFE9F:
+
+                if(DMGL_ASSERT(g_test_memory.memory.sprite[address - 0xFE00] == data)) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            case 0xFF80 ... 0xFFFE:
+
+                if(DMGL_ASSERT(g_test_memory.memory.high[address - 0xFF80] == data)) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            case 0xFF50:
+
+                if(DMGL_ASSERT((g_test_memory.bootloader.enabled == false)
+                        && (g_test_memory.bootloader.bootloader == &g_test_memory.memory.bootloader))) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            default:
+
+                if(DMGL_ASSERT((g_test_memory.mapper.value == data)
+                        && (g_test_memory.mapper.mapper == &g_test_memory.memory.mapper)
+                        && (g_test_memory.mapper.address == address))) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+        }
+    }
+
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;

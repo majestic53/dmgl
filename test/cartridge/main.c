@@ -23,6 +23,14 @@
 #include <test.h>
 
 typedef struct {
+    dmgl_cartridge_t cartridge;
+
+    struct {
+        const void *data;
+        uint8_t value;
+        size_t begin;
+        size_t end;
+    } checksum;
 
     /* TODO */
 
@@ -36,9 +44,11 @@ extern "C" {
 
 uint8_t dmgl_checksum(const void *data, size_t begin, size_t end)
 {
-    /* TODO */
-    return 0;
-    /* ---- */
+    g_test_cartridge.checksum.data = data;
+    g_test_cartridge.checksum.begin = begin;
+    g_test_cartridge.checksum.end = end;
+
+    return g_test_cartridge.checksum.value;
 }
 
 void *dmgl_buffer_allocate(size_t length)
@@ -77,10 +87,14 @@ static dmgl_error_e dmgl_test_cartridge_ram_count(void)
     dmgl_error_e result = DMGL_SUCCESS;
 
     dmgl_test_initialize();
+    g_test_cartridge.cartridge.ram.count = 4;
 
-    /* TODO */
+    if(DMGL_ASSERT(dmgl_cartridge_ram_count(&g_test_cartridge.cartridge) == 4)) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
 
-//exit:
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
@@ -119,10 +133,14 @@ static dmgl_error_e dmgl_test_cartridge_rom_count(void)
     dmgl_error_e result = DMGL_SUCCESS;
 
     dmgl_test_initialize();
+    g_test_cartridge.cartridge.rom.count = 4;
 
-    /* TODO */
+    if(DMGL_ASSERT(dmgl_cartridge_rom_count(&g_test_cartridge.cartridge) == 4)) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
 
-//exit:
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
