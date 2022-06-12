@@ -21,11 +21,15 @@
 
 #include <bus.h>
 #include <memory.h>
+#include <processor.h>
 
 typedef struct {
     dmgl_memory_t memory;
+    dmgl_processor_t processor;
 
     /* TODO: ADD SUBSYSTEMS */
+    uint32_t cycle;
+    /* ---- */
 
 } dmgl_bus_t;
 
@@ -39,10 +43,18 @@ dmgl_error_e dmgl_bus_clock(void)
 {
     dmgl_error_e result;
 
+    if((result = dmgl_processor_clock(&g_bus.processor)) != DMGL_SUCCESS) {
+        goto exit;
+    }
+
     /* TODO: CLOCK SUBSYSTEMS */
-    result = DMGL_COMPLETE;
+    if(++g_bus.cycle > 4194304 / 60) {
+        result = DMGL_COMPLETE;
+        g_bus.cycle = 0;
+    }
     /* ---- */
 
+exit:
     return result;
 }
 
@@ -51,6 +63,10 @@ dmgl_error_e dmgl_bus_initialize(const dmgl_t *context)
     dmgl_error_e result;
 
     if((result = dmgl_memory_initialize(&g_bus.memory, context)) != DMGL_SUCCESS) {
+        goto exit;
+    }
+
+    if((result = dmgl_processor_initialize(&g_bus.processor, context->bootloader.data != NULL)) != DMGL_SUCCESS) {
         goto exit;
     }
 
@@ -73,6 +89,10 @@ uint8_t dmgl_bus_read(uint16_t address)
 
         /* TODO: READ BYTE FROM SUBSYSTEMS */
 
+        case 0xFF0F:
+        case 0xFFFF:
+            result = dmgl_processor_read(&g_bus.processor, address);
+            break;
         default:
             result = dmgl_memory_read(&g_bus.memory, address);
             break;
@@ -90,6 +110,7 @@ void dmgl_bus_uninitialize(void)
 {
     /* TODO: UNINITIALIZE SUBSYSTEMS */
 
+    dmgl_processor_uninitialize(&g_bus.processor);
     dmgl_memory_uninitialize(&g_bus.memory);
     memset(&g_bus, 0, sizeof(g_bus));
 }
@@ -101,6 +122,10 @@ void dmgl_bus_write(uint16_t address, uint8_t value)
 
         /* TODO: WRITE BYTE TO SUBSYSTEMS */
 
+        case 0xFF0F:
+        case 0xFFFF:
+            dmgl_processor_write(&g_bus.processor, address, value);
+            break;
         default:
             dmgl_memory_write(&g_bus.memory, address, value);
             break;

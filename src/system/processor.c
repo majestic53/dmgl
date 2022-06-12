@@ -25,7 +25,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-dmgl_error_e dmgl_processor_cycle(dmgl_processor_t *processor)
+dmgl_error_e dmgl_processor_clock(dmgl_processor_t *processor)
 {
     dmgl_error_e result;
 
@@ -36,7 +36,7 @@ dmgl_error_e dmgl_processor_cycle(dmgl_processor_t *processor)
     return result;
 }
 
-dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, const dmgl_t *context)
+dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, bool has_bootloader)
 {
     dmgl_error_e result;
 

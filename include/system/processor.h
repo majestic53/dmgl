@@ -90,9 +90,9 @@ typedef struct {
 extern "C" {
 #endif /* __cplusplus */
 
-dmgl_error_e dmgl_processor_cycle(dmgl_processor_t *processor);
+dmgl_error_e dmgl_processor_clock(dmgl_processor_t *processor);
 
-dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, const dmgl_t *context);
+dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, bool has_bootloader);
 
 uint8_t dmgl_processor_read(const dmgl_processor_t *processor, uint16_t address);
 
