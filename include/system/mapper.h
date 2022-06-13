@@ -41,6 +41,8 @@ typedef struct {
 extern "C" {
 #endif /* __cplusplus */
 
+uint8_t dmgl_mapper_checksum(const dmgl_mapper_t *mapper);
+
 dmgl_error_e dmgl_mapper_initialize(dmgl_mapper_t *mapper, const uint8_t *data, size_t length);
 
 uint8_t dmgl_mapper_read(const dmgl_mapper_t *mapper, uint16_t address);

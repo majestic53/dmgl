@@ -31,6 +31,11 @@ static const uint8_t TYPE[] = { 0, };
 extern "C" {
 #endif /* __cplusplus */
 
+uint8_t dmgl_cartridge_checksum(const dmgl_cartridge_t *cartridge)
+{
+    return ((const dmgl_cartridge_header_t *)&cartridge->rom.bank[0][0x0100])->checksum;
+}
+
 static dmgl_error_e dmgl_cartridge_validate(const uint8_t *data, size_t length)
 {
     uint8_t checksum;

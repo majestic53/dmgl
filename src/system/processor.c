@@ -36,15 +36,23 @@ dmgl_error_e dmgl_processor_clock(dmgl_processor_t *processor)
     return result;
 }
 
-dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, bool has_bootloader)
+dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, bool has_bootloader, uint8_t checksum)
 {
-    dmgl_error_e result;
 
-    /* TODO */
-    result = DMGL_SUCCESS;
-    /* ---- */
+    if(!has_bootloader) {
+        processor->af.high = 0x01;
+        processor->af.carry = checksum ? 1 : 0;
+        processor->af.half_carry = checksum ? 1 : 0;
+        processor->af.zero = 1;
+        processor->bc.word = 0x0013;
+        processor->de.word = 0x00D8;
+        processor->hl.word = 0x014D;
+        processor->pc.word = 0x0100;
+        processor->sp.word = 0xFFFE;
+        processor->interrupt.flag.raw = 0xE1;
+    }
 
-    return result;
+    return DMGL_SUCCESS;
 }
 
 uint8_t dmgl_processor_read(const dmgl_processor_t *processor, uint16_t address)
@@ -52,9 +60,12 @@ uint8_t dmgl_processor_read(const dmgl_processor_t *processor, uint16_t address)
     uint8_t result = 0;
 
     switch(address) {
-
-        /* TODO */
-
+        case 0xFF0F:
+            result = processor->interrupt.flag.raw;
+            break;
+        case 0xFFFF:
+            result = processor->interrupt.enable.raw;
+            break;
         default:
             break;
     }
@@ -64,16 +75,19 @@ uint8_t dmgl_processor_read(const dmgl_processor_t *processor, uint16_t address)
 
 void dmgl_processor_uninitialize(dmgl_processor_t *processor)
 {
-    /* TODO */
+    memset(processor, 0, sizeof(*processor));
 }
 
 void dmgl_processor_write(dmgl_processor_t *processor, uint16_t address, uint8_t value)
 {
 
     switch(address) {
-
-        /* TODO */
-
+        case 0xFF0F:
+            processor->interrupt.flag.raw = value;
+            break;
+        case 0xFFFF:
+            processor->interrupt.enable.raw = value;
+            break;
         default:
             break;
     }

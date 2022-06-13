@@ -32,6 +32,7 @@ typedef struct {
         dmgl_error_e status;
         const char *title;
         dmgl_cartridge_e type;
+        uint8_t checksum;
         bool initialized;
     } cartridge;
 
@@ -50,6 +51,13 @@ static dmgl_test_mapper_t g_test_mapper = {};
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+uint8_t dmgl_cartridge_checksum(const dmgl_cartridge_t *cartridge)
+{
+    g_test_mapper.cartridge.cartridge = cartridge;
+
+    return g_test_mapper.cartridge.checksum;
+}
 
 dmgl_error_e dmgl_cartridge_initialize(dmgl_cartridge_t *cartridge, const uint8_t *data, size_t length)
 {
@@ -136,6 +144,25 @@ void dmgl_mbc0_write(dmgl_cartridge_t *cartridge, void *context, uint16_t addres
 static inline void dmgl_test_initialize(void)
 {
     memset(&g_test_mapper, 0, sizeof(g_test_mapper));
+}
+
+static dmgl_error_e dmgl_test_mapper_checksum(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+    g_test_mapper.cartridge.checksum = 0xEF;
+
+    if(DMGL_ASSERT((dmgl_mapper_checksum(&g_test_mapper.mapper) == 0xEF)
+            && (g_test_mapper.cartridge.cartridge == &g_test_mapper.mapper.cartridge))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
 }
 
 static dmgl_error_e dmgl_test_mapper_initialize(void)
@@ -294,8 +321,8 @@ int main(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
     const dmgl_test_cb tests[] = {
-        dmgl_test_mapper_initialize, dmgl_test_mapper_read, dmgl_test_mapper_title, dmgl_test_mapper_uninitialize,
-        dmgl_test_mapper_write,
+        dmgl_test_mapper_checksum, dmgl_test_mapper_initialize, dmgl_test_mapper_read, dmgl_test_mapper_title,
+        dmgl_test_mapper_uninitialize, dmgl_test_mapper_write,
         };
 
     for(int index = 0; index < (sizeof(tests) / sizeof(*(tests))); ++index) {

@@ -25,6 +25,16 @@
 extern "C" {
 #endif /* __cplusplus */
 
+uint8_t dmgl_memory_checksum(const dmgl_memory_t *memory)
+{
+    return dmgl_mapper_checksum(&memory->mapper);
+}
+
+bool dmgl_memory_has_bootloader(const dmgl_memory_t *memory)
+{
+    return dmgl_bootloader_enabled(&memory->bootloader);
+}
+
 dmgl_error_e dmgl_memory_initialize(dmgl_memory_t *memory, const dmgl_t *context)
 {
     dmgl_error_e result;

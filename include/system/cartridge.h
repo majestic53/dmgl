@@ -64,6 +64,8 @@ typedef struct {
 extern "C" {
 #endif /* __cplusplus */
 
+uint8_t dmgl_cartridge_checksum(const dmgl_cartridge_t *cartridge);
+
 dmgl_error_e dmgl_cartridge_initialize(dmgl_cartridge_t *cartridge, const uint8_t *data, size_t length);
 
 size_t dmgl_cartridge_ram_count(const dmgl_cartridge_t *cartridge);

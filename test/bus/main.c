@@ -33,6 +33,8 @@ typedef struct {
         dmgl_error_e status;
         uint16_t address;
         uint8_t value;
+        bool has_bootloader;
+        uint8_t checksum;
         bool initialized;
     } memory;
 
@@ -42,6 +44,7 @@ typedef struct {
         uint16_t address;
         uint8_t value;
         bool has_bootloader;
+        uint8_t checksum;
         bool initialized;
         bool clock;
     } processor;
@@ -52,6 +55,20 @@ static dmgl_test_bus_t g_test_bus = {};
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+uint8_t dmgl_memory_checksum(const dmgl_memory_t *memory)
+{
+    g_test_bus.memory.memory = memory;
+
+    return g_test_bus.memory.checksum;
+}
+
+bool dmgl_memory_has_bootloader(const dmgl_memory_t *memory)
+{
+    g_test_bus.memory.memory = memory;
+
+    return g_test_bus.memory.has_bootloader;
+}
 
 dmgl_error_e dmgl_memory_initialize(dmgl_memory_t *memory, const dmgl_t *context)
 {
@@ -98,10 +115,11 @@ dmgl_error_e dmgl_processor_clock(dmgl_processor_t *processor)
     return g_test_bus.processor.status;
 }
 
-dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, bool has_bootloader)
+dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, bool has_bootloader, uint8_t checksum)
 {
     g_test_bus.processor.processor = processor;
     g_test_bus.processor.has_bootloader = has_bootloader;
+    g_test_bus.processor.checksum = checksum;
     g_test_bus.processor.initialized = true;
 
     return g_test_bus.processor.status;
@@ -200,6 +218,8 @@ static dmgl_error_e dmgl_test_bus_initialize(void)
     }
 
     dmgl_test_initialize();
+    g_test_bus.memory.has_bootloader = true;
+    g_test_bus.memory.checksum = 0xEF;
     context.bootloader.data = (uint8_t *)1;
 
     if(DMGL_ASSERT((dmgl_bus_initialize(&context) == DMGL_SUCCESS)
@@ -207,7 +227,8 @@ static dmgl_error_e dmgl_test_bus_initialize(void)
             && (g_test_bus.memory.context == &context)
             && (g_test_bus.memory.initialized == true)
             && (g_test_bus.processor.processor != NULL)
-            && (g_test_bus.processor.has_bootloader == true)
+            && (g_test_bus.processor.has_bootloader == g_test_bus.memory.has_bootloader)
+            && (g_test_bus.processor.checksum == g_test_bus.memory.checksum)
             && (g_test_bus.processor.initialized == true))) {
         result = DMGL_FAILURE;
         goto exit;

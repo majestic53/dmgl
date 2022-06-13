@@ -92,7 +92,7 @@ extern "C" {
 
 dmgl_error_e dmgl_processor_clock(dmgl_processor_t *processor);
 
-dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, bool has_bootloader);
+dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, bool has_bootloader, uint8_t checksum);
 
 uint8_t dmgl_processor_read(const dmgl_processor_t *processor, uint16_t address);
 

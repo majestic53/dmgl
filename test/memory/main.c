@@ -42,6 +42,7 @@ typedef struct {
         size_t length;
         uint16_t address;
         uint8_t value;
+        uint8_t checksum;
         bool initialized;
         const char *title;
         dmgl_error_e status;
@@ -91,6 +92,13 @@ void dmgl_bootloader_uninitialize(dmgl_bootloader_t *bootloader)
     g_test_memory.bootloader.initialized = false;
 }
 
+uint8_t dmgl_mapper_checksum(const dmgl_mapper_t *mapper)
+{
+    g_test_memory.mapper.mapper = mapper;
+
+    return g_test_memory.mapper.checksum;
+}
+
 dmgl_error_e dmgl_mapper_initialize(dmgl_mapper_t *mapper, const uint8_t *data, size_t length)
 {
     g_test_memory.mapper.mapper = mapper;
@@ -132,6 +140,52 @@ void dmgl_mapper_write(dmgl_mapper_t *mapper, uint16_t address, uint8_t value)
 static inline void dmgl_test_initialize(void)
 {
     memset(&g_test_memory, 0, sizeof(g_test_memory));
+}
+
+static dmgl_error_e dmgl_test_memory_checksum(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+    g_test_memory.mapper.checksum = 0xEF;
+
+    if(DMGL_ASSERT((dmgl_memory_checksum(&g_test_memory.memory) == 0xEF)
+            && (g_test_memory.mapper.mapper == &g_test_memory.memory.mapper))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
+static dmgl_error_e dmgl_test_memory_has_bootloader(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+
+    if(DMGL_ASSERT((dmgl_memory_has_bootloader(&g_test_memory.memory) == false)
+            && (g_test_memory.bootloader.bootloader == &g_test_memory.memory.bootloader))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+    dmgl_test_initialize();
+    g_test_memory.bootloader.enabled = true;
+
+    if(DMGL_ASSERT((dmgl_memory_has_bootloader(&g_test_memory.memory) == true)
+            && (g_test_memory.bootloader.bootloader == &g_test_memory.memory.bootloader))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
 }
 
 static dmgl_error_e dmgl_test_memory_initialize(void)
@@ -387,8 +441,8 @@ int main(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
     const dmgl_test_cb tests[] = {
-        dmgl_test_memory_initialize, dmgl_test_memory_read, dmgl_test_memory_title, dmgl_test_memory_uninitialize,
-        dmgl_test_memory_write,
+        dmgl_test_memory_checksum, dmgl_test_memory_has_bootloader, dmgl_test_memory_initialize, dmgl_test_memory_read,
+        dmgl_test_memory_title, dmgl_test_memory_uninitialize, dmgl_test_memory_write,
         };
 
     for(int index = 0; index < (sizeof(tests) / sizeof(*(tests))); ++index) {

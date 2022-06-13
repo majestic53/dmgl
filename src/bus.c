@@ -66,7 +66,7 @@ dmgl_error_e dmgl_bus_initialize(const dmgl_t *context)
         goto exit;
     }
 
-    if((result = dmgl_processor_initialize(&g_bus.processor, context->bootloader.data != NULL)) != DMGL_SUCCESS) {
+    if((result = dmgl_processor_initialize(&g_bus.processor, dmgl_memory_has_bootloader(&g_bus.memory), dmgl_memory_checksum(&g_bus.memory))) != DMGL_SUCCESS) {
         goto exit;
     }
 

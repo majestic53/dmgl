@@ -38,6 +38,10 @@ typedef struct {
 extern "C" {
 #endif /* __cplusplus */
 
+uint8_t dmgl_memory_checksum(const dmgl_memory_t *memory);
+
+bool dmgl_memory_has_bootloader(const dmgl_memory_t *memory);
+
 dmgl_error_e dmgl_memory_initialize(dmgl_memory_t *memory, const dmgl_t *context);
 
 uint8_t dmgl_memory_read(const dmgl_memory_t *memory, uint16_t address);

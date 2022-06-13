@@ -25,6 +25,11 @@
 extern "C" {
 #endif /* __cplusplus */
 
+uint8_t dmgl_mapper_checksum(const dmgl_mapper_t *mapper)
+{
+    return dmgl_cartridge_checksum(&mapper->cartridge);
+}
+
 dmgl_error_e dmgl_mapper_initialize(dmgl_mapper_t *mapper, const uint8_t *data, size_t length)
 {
     dmgl_error_e result;
