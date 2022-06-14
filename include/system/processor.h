@@ -68,20 +68,23 @@ typedef struct {
     dmgl_processor_register_t hl;
     dmgl_processor_register_t pc;
     dmgl_processor_register_t sp;
+    uint8_t cycle;
     bool halted;
     bool stopped;
 
     struct {
         dmgl_processor_register_t address;
-        uint8_t opcode;
         dmgl_processor_register_t operand;
-        size_t index;
+        uint8_t opcode;
+        uint8_t cycle;
+        bool extended;
     } instruction;
 
     struct {
+        dmgl_processor_register_t address;
         dmgl_processor_interrupt_t enable;
         dmgl_processor_interrupt_t flag;
-        uint8_t enable_delay;
+        uint8_t cycle;
         bool enabled;
     } interrupt;
 } dmgl_processor_t;

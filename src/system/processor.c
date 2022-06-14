@@ -19,20 +19,110 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <bus.h>
 #include <processor.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
+/*static uint8_t dmgl_processor_fetch(dmgl_processor_t *processor)
+{
+    return dmgl_bus_read(processor->pc.word++);
+}
+
+static uint8_t dmgl_processor_pop(dmgl_processor_t *processor)
+{
+    return dmgl_bus_read(processor->sp.word++);
+}*/
+
+static void dmgl_processor_push(dmgl_processor_t *processor, uint8_t value)
+{
+    dmgl_bus_write(--processor->sp.word, value);
+}
+
+static dmgl_error_e dmgl_processor_instruction(dmgl_processor_t *processor)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    switch(processor->instruction.cycle) {
+
+        /* TODO */
+
+        default:
+            break;
+    }
+
+    return result;
+}
+
+static void dmgl_processor_interrupt(dmgl_processor_t *processor)
+{
+
+    switch(processor->interrupt.cycle) {
+        case 0:
+            ++processor->interrupt.cycle;
+            break;
+        case 1:
+
+            for(dmgl_interrupt_e interrupt = 0; interrupt < DMGL_INTERRUPT_MAX; ++interrupt) {
+                int mask = (1 << interrupt);
+
+                if((processor->interrupt.flag.raw & mask)
+                        && (processor->interrupt.enable.raw & mask)) {
+                    processor->interrupt.address.word = 0x0040 + (0x0008 * interrupt);
+                    processor->interrupt.flag.raw &= ~mask;
+                    processor->interrupt.enabled = false;
+                    break;
+                }
+            }
+
+            ++processor->interrupt.cycle;
+            break;
+        case 2:
+            dmgl_processor_push(processor, processor->pc.high);
+            ++processor->interrupt.cycle;
+            break;
+        case 3:
+            dmgl_processor_push(processor, processor->pc.low);
+            ++processor->interrupt.cycle;
+            break;
+        case 4:
+            processor->pc.word = processor->interrupt.address.word;
+            processor->interrupt.cycle = 0;
+            break;
+        default:
+            break;
+    }
+}
+
 dmgl_error_e dmgl_processor_clock(dmgl_processor_t *processor)
 {
-    dmgl_error_e result;
+    dmgl_error_e result = DMGL_SUCCESS;
 
-    /* TODO */
-    result = DMGL_SUCCESS;
-    /* ---- */
+    if(processor->cycle == 4) {
 
+        if(!processor->instruction.cycle) {
+
+            if((processor->interrupt.enabled && processor->interrupt.flag.raw)
+                    || !processor->interrupt.cycle) {
+                dmgl_processor_interrupt(processor);
+            } else if(!processor->halted && !processor->stopped) {
+
+                if((result = dmgl_processor_instruction(processor)) != DMGL_SUCCESS) {
+                    goto exit;
+                }
+            }
+        } else if((result = dmgl_processor_instruction(processor)) != DMGL_SUCCESS) {
+            goto exit;
+        }
+
+        processor->cycle = 0;
+    }
+
+    ++processor->cycle;
+
+exit:
     return result;
 }
 

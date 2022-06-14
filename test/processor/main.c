@@ -24,6 +24,7 @@
 
 typedef struct {
     dmgl_processor_t processor;
+    dmgl_processor_t expected;
 
     /* TODO */
 
@@ -35,9 +36,25 @@ static dmgl_test_processor_t g_test_processor = {};
 extern "C" {
 #endif /* __cplusplus */
 
+void dmgl_bus_write(uint16_t address, uint8_t value)
+{
+    /* TODO */
+}
+
 static inline void dmgl_test_initialize(void)
 {
     memset(&g_test_processor, 0, sizeof(g_test_processor));
+}
+
+static inline dmgl_error_e dmgl_test_match(void)
+{
+    dmgl_error_e result;
+
+    /* TODO: CHECK EACH MEMBER MATCHES BETWEEN PROCESSOR AND EXPECTED */
+    result = DMGL_SUCCESS;
+    /* ---- */
+
+    return result;
 }
 
 static dmgl_error_e dmgl_test_processor_cycle(void)
@@ -60,9 +77,35 @@ static dmgl_error_e dmgl_test_processor_initialize(void)
 
     dmgl_test_initialize();
 
-    /* TODO */
+    /* TODO: SET EXPECTED */
 
-//exit:
+    if(DMGL_ASSERT((dmgl_processor_initialize(&g_test_processor.processor, false, 0x00) == DMGL_SUCCESS)
+            && (dmgl_test_match() == DMGL_SUCCESS))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+    dmgl_test_initialize();
+
+    /* TODO: SET EXPECTED */
+
+    if(DMGL_ASSERT((dmgl_processor_initialize(&g_test_processor.processor, false, 0x01) == DMGL_SUCCESS)
+            && (dmgl_test_match() == DMGL_SUCCESS))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+    dmgl_test_initialize();
+
+    /* TODO: SET EXPECTED */
+
+    if(DMGL_ASSERT((dmgl_processor_initialize(&g_test_processor.processor, true, 0x00) == DMGL_SUCCESS)
+            && (dmgl_test_match() == DMGL_SUCCESS))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
@@ -70,13 +113,40 @@ static dmgl_error_e dmgl_test_processor_initialize(void)
 
 static dmgl_error_e dmgl_test_processor_read(void)
 {
+    uint8_t data = 0x00;
     dmgl_error_e result = DMGL_SUCCESS;
 
-    dmgl_test_initialize();
+    for(uint32_t address = 0x0000; address <= 0xFFFF; ++address, ++data) {
+        dmgl_test_initialize();
 
-    /* TODO */
+        switch(address) {
+            case 0xFF0F:
+                g_test_processor.processor.interrupt.flag.raw = 0xEF;
 
-//exit:
+                if(DMGL_ASSERT(dmgl_processor_read(&g_test_processor.processor, address) == 0xEF)) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            case 0xFFFF:
+                g_test_processor.processor.interrupt.enable.raw = 0xEF;
+
+                if(DMGL_ASSERT(dmgl_processor_read(&g_test_processor.processor, address) == 0xEF)) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            default:
+
+                if(DMGL_ASSERT(dmgl_processor_read(&g_test_processor.processor, address) == 0x00)) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+        }
+    }
+
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
@@ -87,10 +157,14 @@ static dmgl_error_e dmgl_test_processor_uninitialize(void)
     dmgl_error_e result = DMGL_SUCCESS;
 
     dmgl_test_initialize();
+    dmgl_processor_uninitialize(&g_test_processor.processor);
 
-    /* TODO */
+    if(DMGL_ASSERT(dmgl_test_match() == DMGL_SUCCESS)) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
 
-//exit:
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
@@ -98,13 +172,39 @@ static dmgl_error_e dmgl_test_processor_uninitialize(void)
 
 static dmgl_error_e dmgl_test_processor_write(void)
 {
+    uint8_t data = 0x00;
     dmgl_error_e result = DMGL_SUCCESS;
 
-    dmgl_test_initialize();
+    for(uint32_t address = 0x0000; address <= 0xFFFF; ++address, ++data) {
+        dmgl_test_initialize();
+        dmgl_processor_write(&g_test_processor.processor, address, 0xEF);
 
-    /* TODO */
+        switch(address) {
+            case 0xFF0F:
 
-//exit:
+                if(DMGL_ASSERT(g_test_processor.processor.interrupt.flag.raw == 0xEF)) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            case 0xFFFF:
+
+                if(DMGL_ASSERT(g_test_processor.processor.interrupt.enable.raw == 0xEF)) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+            default:
+
+                if(DMGL_ASSERT(dmgl_test_match() == DMGL_SUCCESS)) {
+                    result = DMGL_FAILURE;
+                    goto exit;
+                }
+                break;
+        }
+    }
+
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
