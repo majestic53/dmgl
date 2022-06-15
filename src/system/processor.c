@@ -61,6 +61,7 @@ static void dmgl_processor_interrupt(dmgl_processor_t *processor)
 
     switch(processor->interrupt.cycle) {
         case 0:
+            processor->halted = false;
             ++processor->interrupt.cycle;
             break;
         case 1:
@@ -68,8 +69,12 @@ static void dmgl_processor_interrupt(dmgl_processor_t *processor)
             for(dmgl_interrupt_e interrupt = 0; interrupt < DMGL_INTERRUPT_MAX; ++interrupt) {
                 int mask = (1 << interrupt);
 
-                if((processor->interrupt.flag.raw & mask)
-                        && (processor->interrupt.enable.raw & mask)) {
+                if((processor->interrupt.flag.raw & mask) && (processor->interrupt.enable.raw & mask)) {
+
+                    if(interrupt == DMGL_INTERRUPT_BUTTON) {
+                        processor->stopped = false;
+                    }
+
                     processor->interrupt.address.word = 0x0040 + (0x0008 * interrupt);
                     processor->interrupt.flag.raw &= ~mask;
                     processor->interrupt.enabled = false;
@@ -104,8 +109,8 @@ dmgl_error_e dmgl_processor_clock(dmgl_processor_t *processor)
 
         if(!processor->instruction.cycle) {
 
-            if((processor->interrupt.enabled && processor->interrupt.flag.raw)
-                    || !processor->interrupt.cycle) {
+            if((processor->interrupt.enabled && (processor->interrupt.flag.raw & processor->interrupt.enable.raw))
+                    || processor->interrupt.cycle) {
                 dmgl_processor_interrupt(processor);
             } else if(!processor->halted && !processor->stopped) {
 
@@ -139,7 +144,6 @@ dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, bool has_boo
         processor->hl.word = 0x014D;
         processor->pc.word = 0x0100;
         processor->sp.word = 0xFFFE;
-        processor->interrupt.flag.raw = 0xE1;
     }
 
     return DMGL_SUCCESS;
@@ -173,10 +177,10 @@ void dmgl_processor_write(dmgl_processor_t *processor, uint16_t address, uint8_t
 
     switch(address) {
         case 0xFF0F:
-            processor->interrupt.flag.raw = value;
+            processor->interrupt.flag.raw = value & 0x1F;
             break;
         case 0xFFFF:
-            processor->interrupt.enable.raw = value;
+            processor->interrupt.enable.raw = value & 0x1F;
             break;
         default:
             break;
