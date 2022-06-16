@@ -254,33 +254,83 @@ static dmgl_error_e dmgl_test_processor_cycle(void)
 
     for(dmgl_interrupt_e interrupt = 0; interrupt < DMGL_INTERRUPT_MAX; ++interrupt) {
         dmgl_test_initialize();
+        g_test_processor.processor.pc.word = 0xABCD;
+        g_test_processor.processor.interrupt.enabled = true;
         g_test_processor.processor.interrupt.enable.raw = (1 << interrupt);
         g_test_processor.processor.interrupt.flag.raw = (1 << interrupt);
+        g_test_processor.processor.halted = true;
+        g_test_processor.processor.stopped = true;
+        g_test_processor.processor.sp.word = 0xFFFE;
+        g_test_processor.expected.pc.word = 0xABCD;
+        g_test_processor.expected.interrupt.enabled = true;
+        g_test_processor.expected.interrupt.enable.raw = (1 << interrupt);
+        g_test_processor.expected.interrupt.flag.raw = (1 << interrupt);
 
         for(uint32_t cycle = 0; cycle < 5; ++cycle) {
 
-            /* TODO: SET EXPECTED STATE */
+            for(uint32_t tick = 0; tick <= 3; ++tick) {
 
-            /*if(DMGL_ASSERT((dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)
-                    && (dmgl_test_match() == DMGL_SUCCESS))) {
-                result = DMGL_FAILURE;
-                goto exit;
-            }*/
-
-            for(uint32_t tick = 0; tick < 3; ++tick) {
-
-                /*if(DMGL_ASSERT((dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)
-                        && (dmgl_test_match() == DMGL_SUCCESS))) {
+                if(DMGL_ASSERT(dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)) {
                     result = DMGL_FAILURE;
                     goto exit;
-                }*/
+                }
+            }
+
+            switch(cycle) {
+                case 0:
+                    g_test_processor.expected.sp.word = 0xFFFE;
+                    g_test_processor.expected.stopped = true;
+                    g_test_processor.expected.interrupt.enable.raw = 1 << interrupt;
+                    g_test_processor.expected.interrupt.flag.raw = 1 << interrupt;
+                    g_test_processor.expected.interrupt.cycle = cycle + 1;
+                    g_test_processor.expected.interrupt.enabled = true;
+                    break;
+                case 1:
+                    g_test_processor.expected.sp.word = 0xFFFE;
+                    g_test_processor.expected.stopped = interrupt != DMGL_INTERRUPT_BUTTON;
+                    g_test_processor.expected.interrupt.address.word = 0x0040 + (0x0008 * interrupt);
+                    g_test_processor.expected.interrupt.flag.raw = 0;
+                    g_test_processor.expected.interrupt.cycle = cycle + 1;
+                    g_test_processor.expected.interrupt.enabled = false;
+                    break;
+                case 2:
+                    g_test_processor.expected.sp.word = 0xFFFD;
+                    g_test_processor.expected.interrupt.cycle = cycle + 1;
+
+                    if(DMGL_ASSERT((g_test_processor.bus.address == 0xFFFD)
+                            && (g_test_processor.bus.value == 0xAB))) {
+                        result = DMGL_FAILURE;
+                        goto exit;
+                    }
+                    break;
+                case 3:
+                    g_test_processor.expected.sp.word = 0xFFFC;
+                    g_test_processor.expected.interrupt.cycle = cycle + 1;
+
+                    if(DMGL_ASSERT((g_test_processor.bus.address == 0xFFFC)
+                            && (g_test_processor.bus.value == 0xCD))) {
+                        result = DMGL_FAILURE;
+                        goto exit;
+                    }
+                    break;
+                case 4:
+                    g_test_processor.expected.pc.word = 0x0040 + (0x0008 * interrupt);
+                    g_test_processor.expected.interrupt.cycle = 0;
+                    break;
+                default:
+                    break;
+            }
+
+            if(DMGL_ASSERT(dmgl_test_match() == DMGL_SUCCESS)) {
+                result = DMGL_FAILURE;
+                goto exit;
             }
         }
     }
 
     /* TODO: TEST INSTRUCTIONS */
 
-//exit:
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;
