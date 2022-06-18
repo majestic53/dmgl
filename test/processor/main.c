@@ -254,19 +254,19 @@ static dmgl_error_e dmgl_test_processor_clock(void)
 
     dmgl_test_initialize();
 
-    for(uint32_t cycle = 0; cycle < 3; ++cycle) {
+    if(DMGL_ASSERT((dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)
+            && (g_test_processor.processor.cycle == 3))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+    for(int32_t cycle = 2; cycle >= 0; --cycle) {
 
         if(DMGL_ASSERT((dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)
-                && (g_test_processor.processor.cycle == cycle + 1))) {
+                && (g_test_processor.processor.cycle == cycle))) {
             result = DMGL_FAILURE;
             goto exit;
         }
-    }
-
-    if(DMGL_ASSERT((dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)
-            && (g_test_processor.processor.cycle == 0))) {
-        result = DMGL_FAILURE;
-        goto exit;
     }
 
 exit:

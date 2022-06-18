@@ -105,7 +105,7 @@ dmgl_error_e dmgl_processor_clock(dmgl_processor_t *processor)
 {
     dmgl_error_e result = DMGL_SUCCESS;
 
-    if(processor->cycle == 3) {
+    if(processor->cycle == 0) {
 
         if(!processor->instruction.cycle) {
 
@@ -122,10 +122,10 @@ dmgl_error_e dmgl_processor_clock(dmgl_processor_t *processor)
             goto exit;
         }
 
-        processor->cycle = 0;
-    } else {
-        ++processor->cycle;
+        processor->cycle = 4;
     }
+
+    --processor->cycle;
 
 exit:
     return result;
