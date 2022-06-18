@@ -39,6 +39,13 @@ static dmgl_test_processor_t g_test_processor = {};
 extern "C" {
 #endif /* __cplusplus */
 
+uint8_t dmgl_bus_read(uint16_t address)
+{
+    g_test_processor.bus.address = address;
+
+    return g_test_processor.bus.value;
+}
+
 void dmgl_bus_write(uint16_t address, uint8_t value)
 {
     g_test_processor.bus.address = address;
@@ -253,20 +260,27 @@ static dmgl_error_e dmgl_test_processor_clock(void)
     dmgl_error_e result = DMGL_SUCCESS;
 
     dmgl_test_initialize();
+    g_test_processor.processor.cycle = 3;
 
     if(DMGL_ASSERT((dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)
-            && (g_test_processor.processor.cycle == 3))) {
+            && (g_test_processor.processor.cycle == 0))) {
         result = DMGL_FAILURE;
         goto exit;
     }
 
-    for(int32_t cycle = 2; cycle >= 0; --cycle) {
+    for(uint32_t cycle = 0; cycle <= 2; ++cycle) {
 
         if(DMGL_ASSERT((dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)
-                && (g_test_processor.processor.cycle == cycle))) {
+                && (g_test_processor.processor.cycle == cycle + 1))) {
             result = DMGL_FAILURE;
             goto exit;
         }
+    }
+
+    if(DMGL_ASSERT((dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)
+            && (g_test_processor.processor.cycle == 0))) {
+        result = DMGL_FAILURE;
+        goto exit;
     }
 
 exit:
@@ -280,12 +294,14 @@ static dmgl_error_e dmgl_test_processor_initialize(void)
     dmgl_error_e result = DMGL_SUCCESS;
 
     dmgl_test_initialize();
+    g_test_processor.expected.cycle = 3;
     g_test_processor.expected.af.word = 0x0180;
     g_test_processor.expected.bc.word = 0x0013;
     g_test_processor.expected.de.word = 0x00D8;
     g_test_processor.expected.hl.word = 0x014D;
     g_test_processor.expected.pc.word = 0x0100;
     g_test_processor.expected.sp.word = 0xFFFE;
+    g_test_processor.expected.interrupt.flag.raw = 0xE1;
 
     if(DMGL_ASSERT((dmgl_processor_initialize(&g_test_processor.processor, false, 0x00) == DMGL_SUCCESS)
             && (dmgl_test_match() == DMGL_SUCCESS))) {
@@ -294,12 +310,14 @@ static dmgl_error_e dmgl_test_processor_initialize(void)
     }
 
     dmgl_test_initialize();
+    g_test_processor.expected.cycle = 3;
     g_test_processor.expected.af.word = 0x01B0;
     g_test_processor.expected.bc.word = 0x0013;
     g_test_processor.expected.de.word = 0x00D8;
     g_test_processor.expected.hl.word = 0x014D;
     g_test_processor.expected.pc.word = 0x0100;
     g_test_processor.expected.sp.word = 0xFFFE;
+    g_test_processor.expected.interrupt.flag.raw = 0xE1;
 
     if(DMGL_ASSERT((dmgl_processor_initialize(&g_test_processor.processor, false, 0x01) == DMGL_SUCCESS)
             && (dmgl_test_match() == DMGL_SUCCESS))) {
@@ -308,6 +326,7 @@ static dmgl_error_e dmgl_test_processor_initialize(void)
     }
 
     dmgl_test_initialize();
+    g_test_processor.expected.cycle = 3;
 
     if(DMGL_ASSERT((dmgl_processor_initialize(&g_test_processor.processor, true, 0x00) == DMGL_SUCCESS)
             && (dmgl_test_match() == DMGL_SUCCESS))) {
@@ -473,12 +492,12 @@ static dmgl_error_e dmgl_test_processor_write(void)
 
     for(uint32_t address = 0x0000; address <= 0xFFFF; ++address, ++data) {
         dmgl_test_initialize();
-        dmgl_processor_write(&g_test_processor.processor, address, 0xFF);
+        dmgl_processor_write(&g_test_processor.processor, address, 0x1F);
 
         switch(address) {
             case 0xFF0F:
 
-                if(DMGL_ASSERT(g_test_processor.processor.interrupt.flag.raw == 0x1F)) {
+                if(DMGL_ASSERT(g_test_processor.processor.interrupt.flag.raw == 0xFF)) {
                     result = DMGL_FAILURE;
                     goto exit;
                 }

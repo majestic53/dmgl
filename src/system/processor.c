@@ -26,12 +26,14 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/*static uint8_t dmgl_processor_fetch(dmgl_processor_t *processor)
+typedef bool (*dmgl_processor_instruction_cb)(dmgl_processor_t *processor);
+
+static uint8_t dmgl_processor_fetch(dmgl_processor_t *processor)
 {
     return dmgl_bus_read(processor->pc.word++);
 }
 
-static uint8_t dmgl_processor_pop(dmgl_processor_t *processor)
+/*static uint8_t dmgl_processor_pop(dmgl_processor_t *processor)
 {
     return dmgl_bus_read(processor->sp.word++);
 }*/
@@ -41,15 +43,93 @@ static void dmgl_processor_push(dmgl_processor_t *processor, uint8_t value)
     dmgl_bus_write(--processor->sp.word, value);
 }
 
-static dmgl_error_e dmgl_processor_instruction(dmgl_processor_t *processor)
+static bool dmgl_processor_instruction_nop(dmgl_processor_t *processor)
 {
-    dmgl_error_e result = DMGL_SUCCESS;
+    bool result = true;
 
     switch(processor->instruction.cycle) {
+        case 0:
+            result = false;
+            break;
+        default:
+            break;
+    }
+
+    return result;
+}
+
+static bool dmgl_processor_instruction_rlc(dmgl_processor_t *processor)
+{
+    bool result = true;
+
+    switch(processor->instruction.cycle - 1) {
 
         /* TODO */
 
         default:
+            break;
+    }
+
+    return result;
+}
+
+static dmgl_error_e dmgl_processor_instruction(dmgl_processor_t *processor)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+    const dmgl_processor_instruction_cb instruction[] = {
+            dmgl_processor_instruction_nop,
+
+            /* TODO */
+
+        }, instruction_extended[] = {
+            dmgl_processor_instruction_rlc,
+
+            /* TODO */
+        };
+
+    switch(processor->instruction.cycle) {
+        case 0:
+            processor->instruction.address.word = processor->pc.word;
+            processor->instruction.opcode = dmgl_processor_fetch(processor);
+
+            if((processor->instruction.extended = (processor->instruction.opcode == 0xCB))) {
+                ++processor->instruction.cycle;
+            } else if(!instruction[processor->instruction.opcode](processor)) {
+                processor->instruction.cycle = 0;
+            } else {
+                ++processor->instruction.cycle;
+            }
+            break;
+        case 1:
+
+            if(processor->instruction.extended) {
+                processor->instruction.opcode = dmgl_processor_fetch(processor);
+
+                if(!instruction_extended[processor->instruction.opcode](processor)) {
+                    processor->instruction.cycle = 0;
+                } else {
+                    ++processor->instruction.cycle;
+                }
+            } else if(!instruction[processor->instruction.opcode](processor)) {
+                processor->instruction.cycle = 0;
+            } else {
+                ++processor->instruction.cycle;
+            }
+            break;
+        default:
+
+            if(processor->instruction.extended) {
+
+                if(!instruction_extended[processor->instruction.opcode](processor)) {
+                    processor->instruction.cycle = 0;
+                } else {
+                    ++processor->instruction.cycle;
+                }
+            } else if(!instruction[processor->instruction.opcode](processor)) {
+                processor->instruction.cycle = 0;
+            } else {
+                ++processor->instruction.cycle;
+            }
             break;
     }
 
@@ -105,11 +185,11 @@ dmgl_error_e dmgl_processor_clock(dmgl_processor_t *processor)
 {
     dmgl_error_e result = DMGL_SUCCESS;
 
-    if(processor->cycle == 0) {
+    if(processor->cycle == 3) {
 
         if(!processor->instruction.cycle) {
 
-            if((processor->interrupt.enabled && (processor->interrupt.flag.raw & processor->interrupt.enable.raw))
+            if((processor->interrupt.enabled && (processor->interrupt.flag.raw & processor->interrupt.enable.raw & 0x1F))
                     || processor->interrupt.cycle) {
                 dmgl_processor_interrupt(processor);
             } else if(!processor->halted && !processor->stopped) {
@@ -122,10 +202,10 @@ dmgl_error_e dmgl_processor_clock(dmgl_processor_t *processor)
             goto exit;
         }
 
-        processor->cycle = 4;
+        processor->cycle = 0;
+    } else {
+        ++processor->cycle;
     }
-
-    --processor->cycle;
 
 exit:
     return result;
@@ -144,7 +224,10 @@ dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, bool has_boo
         processor->hl.word = 0x014D;
         processor->pc.word = 0x0100;
         processor->sp.word = 0xFFFE;
+        processor->interrupt.flag.raw = 0xE1;
     }
+
+    processor->cycle = 3;
 
     return DMGL_SUCCESS;
 }
@@ -177,10 +260,10 @@ void dmgl_processor_write(dmgl_processor_t *processor, uint16_t address, uint8_t
 
     switch(address) {
         case 0xFF0F:
-            processor->interrupt.flag.raw = value & 0x1F;
+            processor->interrupt.flag.raw = value | 0xE0;
             break;
         case 0xFFFF:
-            processor->interrupt.enable.raw = value & 0x1F;
+            processor->interrupt.enable.raw = value;
             break;
         default:
             break;
