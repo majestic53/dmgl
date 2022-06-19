@@ -62,15 +62,21 @@ typedef union {
 } dmgl_processor_register_t;
 
 typedef struct {
-    dmgl_processor_register_t af;
-    dmgl_processor_register_t bc;
-    dmgl_processor_register_t de;
-    dmgl_processor_register_t hl;
-    dmgl_processor_register_t pc;
-    dmgl_processor_register_t sp;
     uint8_t cycle;
-    bool halted;
-    bool stopped;
+
+    struct {
+        dmgl_processor_register_t af;
+        dmgl_processor_register_t bc;
+        dmgl_processor_register_t de;
+        dmgl_processor_register_t hl;
+        dmgl_processor_register_t pc;
+        dmgl_processor_register_t sp;
+    } bank;
+
+    struct {
+        bool bug;
+        bool enabled;
+    } halt;
 
     struct {
         dmgl_processor_register_t address;
@@ -87,6 +93,11 @@ typedef struct {
         uint8_t cycle;
         bool enabled;
     } interrupt;
+
+    struct {
+        uint8_t code;
+        bool enabled;
+    } stop;
 } dmgl_processor_t;
 
 #ifdef __cplusplus

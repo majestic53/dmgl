@@ -29,7 +29,7 @@ typedef struct {
 
     struct {
         uint16_t address;
-        uint8_t value;
+        uint8_t value[0x10000];
     } bus;
 } dmgl_test_processor_t;
 
@@ -43,13 +43,13 @@ uint8_t dmgl_bus_read(uint16_t address)
 {
     g_test_processor.bus.address = address;
 
-    return g_test_processor.bus.value;
+    return g_test_processor.bus.value[address];
 }
 
 void dmgl_bus_write(uint16_t address, uint8_t value)
 {
     g_test_processor.bus.address = address;
-    g_test_processor.bus.value = value;
+    g_test_processor.bus.value[address] = value;
 }
 
 static inline void dmgl_test_initialize(void)
@@ -61,72 +61,72 @@ static inline dmgl_error_e dmgl_test_match(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
 
-    if(DMGL_ASSERT(g_test_processor.processor.af.high == g_test_processor.expected.af.high)) {
+    if(DMGL_ASSERT(g_test_processor.processor.bank.af.high == g_test_processor.expected.bank.af.high)) {
         result = DMGL_FAILURE;
         goto exit;
     }
 
-    if(DMGL_ASSERT(g_test_processor.processor.af.carry == g_test_processor.expected.af.carry)) {
+    if(DMGL_ASSERT(g_test_processor.processor.bank.af.carry == g_test_processor.expected.bank.af.carry)) {
         result = DMGL_FAILURE;
         goto exit;
     }
 
-    if(DMGL_ASSERT(g_test_processor.processor.af.half_carry == g_test_processor.expected.af.half_carry)) {
+    if(DMGL_ASSERT(g_test_processor.processor.bank.af.half_carry == g_test_processor.expected.bank.af.half_carry)) {
         result = DMGL_FAILURE;
         goto exit;
     }
 
-    if(DMGL_ASSERT(g_test_processor.processor.af.subtract == g_test_processor.expected.af.subtract)) {
+    if(DMGL_ASSERT(g_test_processor.processor.bank.af.subtract == g_test_processor.expected.bank.af.subtract)) {
         result = DMGL_FAILURE;
         goto exit;
     }
 
-    if(DMGL_ASSERT(g_test_processor.processor.af.zero == g_test_processor.expected.af.zero)) {
+    if(DMGL_ASSERT(g_test_processor.processor.bank.af.zero == g_test_processor.expected.bank.af.zero)) {
         result = DMGL_FAILURE;
         goto exit;
     }
 
-    if(DMGL_ASSERT(g_test_processor.processor.af.low == g_test_processor.expected.af.low)) {
+    if(DMGL_ASSERT(g_test_processor.processor.bank.af.low == g_test_processor.expected.bank.af.low)) {
         result = DMGL_FAILURE;
         goto exit;
     }
 
-    if(DMGL_ASSERT(g_test_processor.processor.bc.high == g_test_processor.expected.bc.high)) {
+    if(DMGL_ASSERT(g_test_processor.processor.bank.bc.high == g_test_processor.expected.bank.bc.high)) {
         result = DMGL_FAILURE;
         goto exit;
     }
 
-    if(DMGL_ASSERT(g_test_processor.processor.bc.low == g_test_processor.expected.bc.low)) {
+    if(DMGL_ASSERT(g_test_processor.processor.bank.bc.low == g_test_processor.expected.bank.bc.low)) {
         result = DMGL_FAILURE;
         goto exit;
     }
 
-    if(DMGL_ASSERT(g_test_processor.processor.de.high == g_test_processor.expected.de.high)) {
+    if(DMGL_ASSERT(g_test_processor.processor.bank.de.high == g_test_processor.expected.bank.de.high)) {
         result = DMGL_FAILURE;
         goto exit;
     }
 
-    if(DMGL_ASSERT(g_test_processor.processor.de.low == g_test_processor.expected.de.low)) {
+    if(DMGL_ASSERT(g_test_processor.processor.bank.de.low == g_test_processor.expected.bank.de.low)) {
         result = DMGL_FAILURE;
         goto exit;
     }
 
-    if(DMGL_ASSERT(g_test_processor.processor.hl.high == g_test_processor.expected.hl.high)) {
+    if(DMGL_ASSERT(g_test_processor.processor.bank.hl.high == g_test_processor.expected.bank.hl.high)) {
         result = DMGL_FAILURE;
         goto exit;
     }
 
-    if(DMGL_ASSERT(g_test_processor.processor.hl.low == g_test_processor.expected.hl.low)) {
+    if(DMGL_ASSERT(g_test_processor.processor.bank.hl.low == g_test_processor.expected.bank.hl.low)) {
         result = DMGL_FAILURE;
         goto exit;
     }
 
-    if(DMGL_ASSERT(g_test_processor.processor.pc.word == g_test_processor.expected.pc.word)) {
+    if(DMGL_ASSERT(g_test_processor.processor.bank.pc.word == g_test_processor.expected.bank.pc.word)) {
         result = DMGL_FAILURE;
         goto exit;
     }
 
-    if(DMGL_ASSERT(g_test_processor.processor.sp.word == g_test_processor.expected.sp.word)) {
+    if(DMGL_ASSERT(g_test_processor.processor.bank.sp.word == g_test_processor.expected.bank.sp.word)) {
         result = DMGL_FAILURE;
         goto exit;
     }
@@ -136,12 +136,22 @@ static inline dmgl_error_e dmgl_test_match(void)
         goto exit;
     }
 
-    if(DMGL_ASSERT(g_test_processor.processor.halted == g_test_processor.expected.halted)) {
+    if(DMGL_ASSERT(g_test_processor.processor.halt.bug == g_test_processor.expected.halt.bug)) {
         result = DMGL_FAILURE;
         goto exit;
     }
 
-    if(DMGL_ASSERT(g_test_processor.processor.stopped == g_test_processor.expected.stopped)) {
+    if(DMGL_ASSERT(g_test_processor.processor.halt.enabled == g_test_processor.expected.halt.enabled)) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+    if(DMGL_ASSERT(g_test_processor.processor.stop.code == g_test_processor.expected.stop.code)) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+    if(DMGL_ASSERT(g_test_processor.processor.stop.enabled == g_test_processor.expected.stop.enabled)) {
         result = DMGL_FAILURE;
         goto exit;
     }
@@ -295,12 +305,12 @@ static dmgl_error_e dmgl_test_processor_initialize(void)
 
     dmgl_test_initialize();
     g_test_processor.expected.cycle = 3;
-    g_test_processor.expected.af.word = 0x0180;
-    g_test_processor.expected.bc.word = 0x0013;
-    g_test_processor.expected.de.word = 0x00D8;
-    g_test_processor.expected.hl.word = 0x014D;
-    g_test_processor.expected.pc.word = 0x0100;
-    g_test_processor.expected.sp.word = 0xFFFE;
+    g_test_processor.expected.bank.af.word = 0x0180;
+    g_test_processor.expected.bank.bc.word = 0x0013;
+    g_test_processor.expected.bank.de.word = 0x00D8;
+    g_test_processor.expected.bank.hl.word = 0x014D;
+    g_test_processor.expected.bank.pc.word = 0x0100;
+    g_test_processor.expected.bank.sp.word = 0xFFFE;
     g_test_processor.expected.interrupt.flag.raw = 0xE1;
 
     if(DMGL_ASSERT((dmgl_processor_initialize(&g_test_processor.processor, false, 0x00) == DMGL_SUCCESS)
@@ -311,12 +321,12 @@ static dmgl_error_e dmgl_test_processor_initialize(void)
 
     dmgl_test_initialize();
     g_test_processor.expected.cycle = 3;
-    g_test_processor.expected.af.word = 0x01B0;
-    g_test_processor.expected.bc.word = 0x0013;
-    g_test_processor.expected.de.word = 0x00D8;
-    g_test_processor.expected.hl.word = 0x014D;
-    g_test_processor.expected.pc.word = 0x0100;
-    g_test_processor.expected.sp.word = 0xFFFE;
+    g_test_processor.expected.bank.af.word = 0x01B0;
+    g_test_processor.expected.bank.bc.word = 0x0013;
+    g_test_processor.expected.bank.de.word = 0x00D8;
+    g_test_processor.expected.bank.hl.word = 0x014D;
+    g_test_processor.expected.bank.pc.word = 0x0100;
+    g_test_processor.expected.bank.sp.word = 0xFFFE;
     g_test_processor.expected.interrupt.flag.raw = 0xE1;
 
     if(DMGL_ASSERT((dmgl_processor_initialize(&g_test_processor.processor, false, 0x01) == DMGL_SUCCESS)
@@ -340,20 +350,182 @@ exit:
     return result;
 }
 
+static dmgl_error_e dmgl_test_processor_instruction_di(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+
+    /* TODO */
+
+//exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
+static dmgl_error_e dmgl_test_processor_instruction_ei(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+
+    /* TODO */
+
+//exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
+static dmgl_error_e dmgl_test_processor_instruction_halt(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+    g_test_processor.processor.cycle = 3;
+    g_test_processor.processor.bank.pc.word = 0x00A0;
+    g_test_processor.bus.value[g_test_processor.processor.bank.pc.word] = 0x76;
+    g_test_processor.expected.cycle = 0;
+    g_test_processor.expected.bank.pc.word = 0x00A1;
+    g_test_processor.expected.instruction.address.word = 0x00A0;
+    g_test_processor.expected.instruction.opcode = 0x76;
+    g_test_processor.expected.halt.enabled = true;
+
+    if(DMGL_ASSERT((dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)
+            && (dmgl_test_match() == DMGL_SUCCESS))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+    dmgl_test_initialize();
+    g_test_processor.processor.cycle = 3;
+    g_test_processor.processor.bank.pc.word = 0x00A0;
+    g_test_processor.processor.interrupt.enable.raw = 0x01;
+    g_test_processor.processor.interrupt.flag.raw = 0x01;
+    g_test_processor.bus.value[g_test_processor.processor.bank.pc.word] = 0x76;
+    g_test_processor.expected.cycle = 0;
+    g_test_processor.expected.bank.pc.word = 0x00A1;
+    g_test_processor.expected.instruction.address.word = 0x00A0;
+    g_test_processor.expected.instruction.opcode = 0x76;
+    g_test_processor.expected.interrupt.enable.raw = 0x01;
+    g_test_processor.expected.interrupt.flag.raw = 0x01;
+    g_test_processor.expected.halt.bug = true;
+    g_test_processor.expected.halt.enabled = true;
+
+    if(DMGL_ASSERT((dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)
+            && (dmgl_test_match() == DMGL_SUCCESS))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+    g_test_processor.processor.cycle = 3;
+    g_test_processor.processor.halt.enabled = false;
+    g_test_processor.expected.bank.pc.word = 0x00A1;
+    g_test_processor.expected.instruction.address.word = 0x00A1;
+    g_test_processor.expected.instruction.opcode = 0x00;
+    g_test_processor.expected.halt.bug = false;
+    g_test_processor.expected.halt.enabled = false;
+
+    if(DMGL_ASSERT((dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)
+            && (dmgl_test_match() == DMGL_SUCCESS))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+    g_test_processor.processor.cycle = 3;
+    g_test_processor.expected.bank.pc.word = 0x00A2;
+
+    if(DMGL_ASSERT((dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)
+            && (dmgl_test_match() == DMGL_SUCCESS))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
+static dmgl_error_e dmgl_test_processor_instruction_nop(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+    g_test_processor.processor.cycle = 3;
+    g_test_processor.processor.bank.pc.word = 0x00A0;
+    g_test_processor.bus.value[g_test_processor.processor.bank.pc.word] = 0x00;
+    g_test_processor.expected.cycle = 0;
+    g_test_processor.expected.bank.pc.word = 0x00A1;
+    g_test_processor.expected.instruction.address.word = 0x00A0;
+
+    if(DMGL_ASSERT((dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)
+            && (dmgl_test_match() == DMGL_SUCCESS))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
+static dmgl_error_e dmgl_test_processor_instruction_stop(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+    g_test_processor.processor.cycle = 3;
+    g_test_processor.processor.bank.pc.word = 0x00A0;
+    g_test_processor.bus.value[g_test_processor.processor.bank.pc.word] = 0x10;
+    g_test_processor.bus.value[g_test_processor.processor.bank.pc.word + 1] = 0xEF;
+    g_test_processor.expected.cycle = 0;
+    g_test_processor.expected.bank.pc.word = 0x00A1;
+    g_test_processor.expected.instruction.address.word = 0x00A0;
+    g_test_processor.expected.instruction.opcode = 0x10;
+    g_test_processor.expected.instruction.cycle = 1;
+    g_test_processor.expected.stop.enabled = true;
+
+    if(DMGL_ASSERT((dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)
+            && (dmgl_test_match() == DMGL_SUCCESS))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+    g_test_processor.processor.cycle = 3;
+    g_test_processor.expected.cycle = 0;
+    g_test_processor.expected.bank.pc.word = 0x00A2;
+    g_test_processor.expected.instruction.cycle = 0;
+    g_test_processor.expected.stop.code = 0xEF;
+
+    if(DMGL_ASSERT((dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)
+            && (dmgl_test_match() == DMGL_SUCCESS))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
 static dmgl_error_e dmgl_test_processor_interrupt(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
 
     for(dmgl_interrupt_e interrupt = 0; interrupt < DMGL_INTERRUPT_MAX; ++interrupt) {
         dmgl_test_initialize();
-        g_test_processor.processor.halted = true;
-        g_test_processor.processor.stopped = true;
-        g_test_processor.processor.pc.word = 0xABCD;
-        g_test_processor.processor.sp.word = 0xFFFE;
+        g_test_processor.processor.halt.enabled = true;
+        g_test_processor.processor.stop.enabled = true;
+        g_test_processor.processor.bank.pc.word = 0xABCD;
+        g_test_processor.processor.bank.sp.word = 0xFFFE;
         g_test_processor.processor.interrupt.enable.raw = (1 << interrupt);
         g_test_processor.processor.interrupt.flag.raw = (1 << interrupt);
         g_test_processor.processor.interrupt.enabled = true;
-        g_test_processor.expected.pc.word = 0xABCD;
+        g_test_processor.expected.bank.pc.word = 0xABCD;
         g_test_processor.expected.interrupt.enable.raw = (1 << interrupt);
         g_test_processor.expected.interrupt.flag.raw = (1 << interrupt);
         g_test_processor.expected.interrupt.enabled = true;
@@ -370,43 +542,43 @@ static dmgl_error_e dmgl_test_processor_interrupt(void)
 
             switch(cycle) {
                 case 0:
-                    g_test_processor.expected.sp.word = 0xFFFE;
-                    g_test_processor.expected.stopped = true;
+                    g_test_processor.expected.bank.sp.word = 0xFFFE;
+                    g_test_processor.expected.stop.enabled = true;
                     g_test_processor.expected.interrupt.enable.raw = 1 << interrupt;
                     g_test_processor.expected.interrupt.flag.raw = 1 << interrupt;
                     g_test_processor.expected.interrupt.cycle = cycle + 1;
                     g_test_processor.expected.interrupt.enabled = true;
                     break;
                 case 1:
-                    g_test_processor.expected.sp.word = 0xFFFE;
-                    g_test_processor.expected.stopped = interrupt != DMGL_INTERRUPT_BUTTON;
+                    g_test_processor.expected.bank.sp.word = 0xFFFE;
+                    g_test_processor.expected.stop.enabled = interrupt != DMGL_INTERRUPT_BUTTON;
                     g_test_processor.expected.interrupt.address.word = 0x0040 + (0x0008 * interrupt);
                     g_test_processor.expected.interrupt.flag.raw = 0;
                     g_test_processor.expected.interrupt.cycle = cycle + 1;
                     g_test_processor.expected.interrupt.enabled = false;
                     break;
                 case 2:
-                    g_test_processor.expected.sp.word = 0xFFFD;
+                    g_test_processor.expected.bank.sp.word = 0xFFFD;
                     g_test_processor.expected.interrupt.cycle = cycle + 1;
 
                     if(DMGL_ASSERT((g_test_processor.bus.address == 0xFFFD)
-                            && (g_test_processor.bus.value == 0xAB))) {
+                            && (g_test_processor.bus.value[g_test_processor.bus.address] == 0xAB))) {
                         result = DMGL_FAILURE;
                         goto exit;
                     }
                     break;
                 case 3:
-                    g_test_processor.expected.sp.word = 0xFFFC;
+                    g_test_processor.expected.bank.sp.word = 0xFFFC;
                     g_test_processor.expected.interrupt.cycle = cycle + 1;
 
                     if(DMGL_ASSERT((g_test_processor.bus.address == 0xFFFC)
-                            && (g_test_processor.bus.value == 0xCD))) {
+                            && (g_test_processor.bus.value[g_test_processor.bus.address] == 0xCD))) {
                         result = DMGL_FAILURE;
                         goto exit;
                     }
                     break;
                 case 4:
-                    g_test_processor.expected.pc.word = 0x0040 + (0x0008 * interrupt);
+                    g_test_processor.expected.bank.pc.word = 0x0040 + (0x0008 * interrupt);
                     g_test_processor.expected.interrupt.cycle = 0;
                     break;
                 default:
@@ -529,8 +701,9 @@ int main(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
     const dmgl_test_cb tests[] = {
-        dmgl_test_processor_clock, dmgl_test_processor_initialize, dmgl_test_processor_interrupt, dmgl_test_processor_read,
-        dmgl_test_processor_uninitialize, dmgl_test_processor_write,
+        dmgl_test_processor_clock, dmgl_test_processor_initialize, dmgl_test_processor_instruction_di, dmgl_test_processor_instruction_ei,
+        dmgl_test_processor_instruction_halt, dmgl_test_processor_instruction_nop, dmgl_test_processor_instruction_stop, dmgl_test_processor_interrupt,
+        dmgl_test_processor_read, dmgl_test_processor_uninitialize, dmgl_test_processor_write,
         };
 
     for(int index = 0; index < (sizeof(tests) / sizeof(*(tests))); ++index) {

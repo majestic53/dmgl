@@ -30,7 +30,15 @@ typedef bool (*dmgl_processor_instruction_cb)(dmgl_processor_t *processor);
 
 static uint8_t dmgl_processor_fetch(dmgl_processor_t *processor)
 {
-    return dmgl_bus_read(processor->pc.word++);
+    uint8_t result = dmgl_bus_read(processor->bank.pc.word);
+
+    if(processor->halt.bug) {
+        processor->halt.bug = false;
+    } else {
+        processor->bank.pc.word++;
+    }
+
+    return result;
 }
 
 /*static uint8_t dmgl_processor_pop(dmgl_processor_t *processor)
@@ -40,7 +48,58 @@ static uint8_t dmgl_processor_fetch(dmgl_processor_t *processor)
 
 static void dmgl_processor_push(dmgl_processor_t *processor, uint8_t value)
 {
-    dmgl_bus_write(--processor->sp.word, value);
+    dmgl_bus_write(--processor->bank.sp.word, value);
+}
+
+static bool dmgl_processor_instruction_di(dmgl_processor_t *processor)
+{
+    bool result = true;
+
+    switch(processor->instruction.cycle) {
+        case 0:
+
+            /* TODO */
+
+            break;
+        default:
+            break;
+    }
+
+    return result;
+}
+
+static bool dmgl_processor_instruction_ei(dmgl_processor_t *processor)
+{
+    bool result = true;
+
+    switch(processor->instruction.cycle) {
+        case 0:
+
+            /* TODO */
+
+            break;
+        default:
+            break;
+    }
+
+    return result;
+}
+
+static bool dmgl_processor_instruction_halt(dmgl_processor_t *processor)
+{
+    bool result = true;
+
+    switch(processor->instruction.cycle) {
+        case 0:
+            processor->halt.bug = (!processor->interrupt.enabled && (processor->interrupt.flag.raw & processor->interrupt.enable.raw & 0x1F));
+            processor->halt.enabled = true;
+            result = false;
+            break;
+        default:
+            break;
+    }
+
+    return result;
 }
 
 static bool dmgl_processor_instruction_nop(dmgl_processor_t *processor)
@@ -73,23 +132,227 @@ static bool dmgl_processor_instruction_rlc(dmgl_processor_t *processor)
     return result;
 }
 
+static bool dmgl_processor_instruction_stop(dmgl_processor_t *processor)
+{
+    bool result = true;
+
+    switch(processor->instruction.cycle) {
+        case 0:
+            processor->stop.enabled = true;
+            break;
+        case 1:
+            processor->stop.code = dmgl_processor_fetch(processor);
+            result = false;
+            break;
+        default:
+            break;
+    }
+
+    return result;
+}
+
 static dmgl_error_e dmgl_processor_instruction(dmgl_processor_t *processor)
 {
     dmgl_error_e result = DMGL_SUCCESS;
     const dmgl_processor_instruction_cb instruction[] = {
-            dmgl_processor_instruction_nop,
-
-            /* TODO */
-
+            /* 00 */
+            dmgl_processor_instruction_nop, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 08 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 10 */
+            dmgl_processor_instruction_stop, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 18 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 20 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 28 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 30 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 38 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 40 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 48 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 50 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 58 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 60 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 68 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 70 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, dmgl_processor_instruction_halt, NULL,
+            /* 78 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 80 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 88 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 90 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 98 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* A0 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* A8 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* B0 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* B8 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* C0 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* C8 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* D0 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* D8 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* E0 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* E8 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* F0 */
+            NULL, NULL, NULL, dmgl_processor_instruction_di,
+            NULL, NULL, NULL, NULL,
+            /* F8 */
+            NULL, NULL, NULL, dmgl_processor_instruction_ei,
+            NULL, NULL, NULL, NULL,
         }, instruction_extended[] = {
-            dmgl_processor_instruction_rlc,
-
-            /* TODO */
+            /* 00 */
+            dmgl_processor_instruction_rlc, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 08 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 10 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 18 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 20 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 28 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 30 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 38 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 40 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 48 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 50 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 58 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 60 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 68 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 70 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 78 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 80 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 88 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 90 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* 98 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* A0 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* A8 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* B0 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* B8 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* C0 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* C8 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* D0 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* D8 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* E0 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* E8 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* F0 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            /* F8 */
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
         };
 
     switch(processor->instruction.cycle) {
         case 0:
-            processor->instruction.address.word = processor->pc.word;
+            processor->instruction.address.word = processor->bank.pc.word;
             processor->instruction.opcode = dmgl_processor_fetch(processor);
 
             if((processor->instruction.extended = (processor->instruction.opcode == 0xCB))) {
@@ -141,7 +404,7 @@ static void dmgl_processor_interrupt(dmgl_processor_t *processor)
 
     switch(processor->interrupt.cycle) {
         case 0:
-            processor->halted = false;
+            processor->halt.enabled = false;
             ++processor->interrupt.cycle;
             break;
         case 1:
@@ -152,7 +415,7 @@ static void dmgl_processor_interrupt(dmgl_processor_t *processor)
                 if((processor->interrupt.flag.raw & mask) && (processor->interrupt.enable.raw & mask)) {
 
                     if(interrupt == DMGL_INTERRUPT_BUTTON) {
-                        processor->stopped = false;
+                        processor->stop.enabled = false;
                     }
 
                     processor->interrupt.address.word = 0x0040 + (0x0008 * interrupt);
@@ -165,15 +428,15 @@ static void dmgl_processor_interrupt(dmgl_processor_t *processor)
             ++processor->interrupt.cycle;
             break;
         case 2:
-            dmgl_processor_push(processor, processor->pc.high);
+            dmgl_processor_push(processor, processor->bank.pc.high);
             ++processor->interrupt.cycle;
             break;
         case 3:
-            dmgl_processor_push(processor, processor->pc.low);
+            dmgl_processor_push(processor, processor->bank.pc.low);
             ++processor->interrupt.cycle;
             break;
         case 4:
-            processor->pc.word = processor->interrupt.address.word;
+            processor->bank.pc.word = processor->interrupt.address.word;
             processor->interrupt.cycle = 0;
             break;
         default:
@@ -192,7 +455,7 @@ dmgl_error_e dmgl_processor_clock(dmgl_processor_t *processor)
             if((processor->interrupt.enabled && (processor->interrupt.flag.raw & processor->interrupt.enable.raw & 0x1F))
                     || processor->interrupt.cycle) {
                 dmgl_processor_interrupt(processor);
-            } else if(!processor->halted && !processor->stopped) {
+            } else if(!processor->halt.enabled && !processor->stop.enabled) {
 
                 if((result = dmgl_processor_instruction(processor)) != DMGL_SUCCESS) {
                     goto exit;
@@ -215,15 +478,15 @@ dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, bool has_boo
 {
 
     if(!has_bootloader) {
-        processor->af.high = 0x01;
-        processor->af.carry = checksum ? 1 : 0;
-        processor->af.half_carry = checksum ? 1 : 0;
-        processor->af.zero = 1;
-        processor->bc.word = 0x0013;
-        processor->de.word = 0x00D8;
-        processor->hl.word = 0x014D;
-        processor->pc.word = 0x0100;
-        processor->sp.word = 0xFFFE;
+        processor->bank.af.high = 0x01;
+        processor->bank.af.carry = checksum ? 1 : 0;
+        processor->bank.af.half_carry = checksum ? 1 : 0;
+        processor->bank.af.zero = 1;
+        processor->bank.bc.word = 0x0013;
+        processor->bank.de.word = 0x00D8;
+        processor->bank.hl.word = 0x014D;
+        processor->bank.pc.word = 0x0100;
+        processor->bank.sp.word = 0xFFFE;
         processor->interrupt.flag.raw = 0xE1;
     }
 
