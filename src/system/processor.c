@@ -30,25 +30,53 @@ typedef bool (*dmgl_processor_instruction_cb)(dmgl_processor_t *processor);
 
 static uint8_t dmgl_processor_fetch(dmgl_processor_t *processor)
 {
-    uint8_t result = dmgl_bus_read(processor->bank.pc.word);
+    return dmgl_bus_read(processor->bank.pc.word++);
+}
 
-    if(processor->halt.bug) {
-        processor->halt.bug = false;
-    } else {
-        processor->bank.pc.word++;
+static uint8_t dmgl_processor_pop(dmgl_processor_t *processor)
+{
+    return dmgl_bus_read(processor->bank.sp.word++);
+}
+
+static void dmgl_processor_push(dmgl_processor_t *processor, uint8_t value)
+{
+    dmgl_bus_write(--processor->bank.sp.word, value);
+}
+
+static bool dmgl_processor_instruction_ccf(dmgl_processor_t *processor)
+{
+    bool result = true;
+
+    switch(processor->instruction.cycle) {
+        case 0:
+            processor->bank.af.carry = !processor->bank.af.carry;
+            processor->bank.af.half_carry = false;
+            processor->bank.af.subtract = false;
+            result = false;
+            break;
+        default:
+            break;
     }
 
     return result;
 }
 
-/*static uint8_t dmgl_processor_pop(dmgl_processor_t *processor)
+static bool dmgl_processor_instruction_cpl(dmgl_processor_t *processor)
 {
-    return dmgl_bus_read(processor->sp.word++);
-}*/
+    bool result = true;
 
-static void dmgl_processor_push(dmgl_processor_t *processor, uint8_t value)
-{
-    dmgl_bus_write(--processor->bank.sp.word, value);
+    switch(processor->instruction.cycle) {
+        case 0:
+            processor->bank.af.high = ~processor->bank.af.high;
+            processor->bank.af.half_carry = true;
+            processor->bank.af.subtract = true;
+            result = false;
+            break;
+        default:
+            break;
+    }
+
+    return result;
 }
 
 static bool dmgl_processor_instruction_di(dmgl_processor_t *processor)
@@ -57,9 +85,9 @@ static bool dmgl_processor_instruction_di(dmgl_processor_t *processor)
 
     switch(processor->instruction.cycle) {
         case 0:
-
-            /* TODO */
-
+            processor->interrupt.enabled = false;
+            processor->interrupt.enabling = 0;
+            result = false;
             break;
         default:
             break;
@@ -74,9 +102,8 @@ static bool dmgl_processor_instruction_ei(dmgl_processor_t *processor)
 
     switch(processor->instruction.cycle) {
         case 0:
-
-            /* TODO */
-
+            processor->interrupt.enabling = 2;
+            result = false;
             break;
         default:
             break;
@@ -117,6 +144,78 @@ static bool dmgl_processor_instruction_nop(dmgl_processor_t *processor)
     return result;
 }
 
+static bool dmgl_processor_instruction_pop(dmgl_processor_t *processor)
+{
+    bool result = true;
+    dmgl_processor_register_t *bank = NULL;
+
+    switch(processor->instruction.opcode) {
+        case 0xC1:
+            bank = &processor->bank.bc;
+            break;
+        case 0xD1:
+            bank = &processor->bank.de;
+            break;
+        case 0xE1:
+            bank = &processor->bank.hl;
+            break;
+        case 0xF1:
+            bank = &processor->bank.af;
+            break;
+    }
+
+    switch(processor->instruction.cycle) {
+        case 0:
+            bank->low = dmgl_processor_pop(processor);
+            break;
+        case 1:
+            bank->high = dmgl_processor_pop(processor);
+            result = false;
+            break;
+        default:
+            break;
+    }
+
+    return result;
+}
+
+static bool dmgl_processor_instruction_push(dmgl_processor_t *processor)
+{
+    bool result = true;
+    dmgl_processor_register_t *bank = NULL;
+
+    switch(processor->instruction.opcode) {
+        case 0xC5:
+            bank = &processor->bank.bc;
+            break;
+        case 0xD5:
+            bank = &processor->bank.de;
+            break;
+        case 0xE5:
+            bank = &processor->bank.hl;
+            break;
+        case 0xF5:
+            bank = &processor->bank.af;
+            break;
+    }
+
+    switch(processor->instruction.cycle) {
+        case 0:
+            break;
+        case 1:
+            dmgl_processor_push(processor, bank->high);
+            break;
+        case 2:
+            dmgl_processor_push(processor, bank->low);
+            result = false;
+            break;
+        default:
+            break;
+    }
+
+    return result;
+}
+
 static bool dmgl_processor_instruction_rlc(dmgl_processor_t *processor)
 {
     bool result = true;
@@ -125,6 +224,24 @@ static bool dmgl_processor_instruction_rlc(dmgl_processor_t *processor)
 
         /* TODO */
 
+        default:
+            break;
+    }
+
+    return result;
+}
+
+static bool dmgl_processor_instruction_scf(dmgl_processor_t *processor)
+{
+    bool result = true;
+
+    switch(processor->instruction.cycle) {
+        case 0:
+            processor->bank.af.carry = true;
+            processor->bank.af.half_carry = false;
+            processor->bank.af.subtract = false;
+            result = false;
+            break;
         default:
             break;
     }
@@ -172,13 +289,13 @@ static dmgl_error_e dmgl_processor_instruction(dmgl_processor_t *processor)
             NULL, NULL, NULL, NULL,
             /* 28 */
             NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, dmgl_processor_instruction_cpl,
             /* 30 */
             NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, dmgl_processor_instruction_scf,
             /* 38 */
             NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, dmgl_processor_instruction_ccf,
             /* 40 */
             NULL, NULL, NULL, NULL,
             NULL, NULL, NULL, NULL,
@@ -228,26 +345,26 @@ static dmgl_error_e dmgl_processor_instruction(dmgl_processor_t *processor)
             NULL, NULL, NULL, NULL,
             NULL, NULL, NULL, NULL,
             /* C0 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            NULL, dmgl_processor_instruction_pop, NULL, NULL,
+            NULL, dmgl_processor_instruction_push, NULL, NULL,
             /* C8 */
             NULL, NULL, NULL, NULL,
             NULL, NULL, NULL, NULL,
             /* D0 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            NULL, dmgl_processor_instruction_pop, NULL, NULL,
+            NULL, dmgl_processor_instruction_push, NULL, NULL,
             /* D8 */
             NULL, NULL, NULL, NULL,
             NULL, NULL, NULL, NULL,
             /* E0 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            NULL, dmgl_processor_instruction_pop, NULL, NULL,
+            NULL, dmgl_processor_instruction_push, NULL, NULL,
             /* E8 */
             NULL, NULL, NULL, NULL,
             NULL, NULL, NULL, NULL,
             /* F0 */
-            NULL, NULL, NULL, dmgl_processor_instruction_di,
-            NULL, NULL, NULL, NULL,
+            NULL, dmgl_processor_instruction_pop, NULL, dmgl_processor_instruction_di,
+            NULL, dmgl_processor_instruction_push, NULL, NULL,
             /* F8 */
             NULL, NULL, NULL, dmgl_processor_instruction_ei,
             NULL, NULL, NULL, NULL,
@@ -352,27 +469,10 @@ static dmgl_error_e dmgl_processor_instruction(dmgl_processor_t *processor)
 
     switch(processor->instruction.cycle) {
         case 0:
-            processor->instruction.address.word = processor->bank.pc.word;
-            processor->instruction.opcode = dmgl_processor_fetch(processor);
-
-            if((processor->instruction.extended = (processor->instruction.opcode == 0xCB))) {
-                ++processor->instruction.cycle;
-            } else if(!instruction[processor->instruction.opcode](processor)) {
-                processor->instruction.cycle = 0;
-            } else {
-                ++processor->instruction.cycle;
-            }
-            break;
-        case 1:
 
             if(processor->instruction.extended) {
                 processor->instruction.opcode = dmgl_processor_fetch(processor);
-
-                if(!instruction_extended[processor->instruction.opcode](processor)) {
-                    processor->instruction.cycle = 0;
-                } else {
-                    ++processor->instruction.cycle;
-                }
+                ++processor->instruction.cycle;
             } else if(!instruction[processor->instruction.opcode](processor)) {
                 processor->instruction.cycle = 0;
             } else {
@@ -396,6 +496,23 @@ static dmgl_error_e dmgl_processor_instruction(dmgl_processor_t *processor)
             break;
     }
 
+    if(!processor->instruction.cycle) {
+        processor->instruction.address.word = processor->bank.pc.word;
+        processor->instruction.opcode = dmgl_processor_fetch(processor);
+
+        if(processor->halt.bug) {
+            processor->halt.bug = false;
+            --processor->bank.pc.word;
+        }
+
+        if(processor->interrupt.enabling) {
+
+            if(!--processor->interrupt.enabling) {
+                processor->interrupt.enabled = false;
+            }
+        }
+    }
+
     return result;
 }
 
@@ -404,6 +521,7 @@ static void dmgl_processor_interrupt(dmgl_processor_t *processor)
 
     switch(processor->interrupt.cycle) {
         case 0:
+            processor->halt.bug = false;
             processor->halt.enabled = false;
             ++processor->interrupt.cycle;
             break;
@@ -437,6 +555,8 @@ static void dmgl_processor_interrupt(dmgl_processor_t *processor)
             break;
         case 4:
             processor->bank.pc.word = processor->interrupt.address.word;
+            processor->instruction.address.word = processor->bank.pc.word;
+            processor->instruction.opcode = dmgl_processor_fetch(processor);
             processor->interrupt.cycle = 0;
             break;
         default:
@@ -490,7 +610,8 @@ dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, bool has_boo
         processor->interrupt.flag.raw = 0xE1;
     }
 
-    processor->cycle = 3;
+    processor->instruction.address.word = processor->bank.pc.word;
+    processor->instruction.opcode = dmgl_processor_fetch(processor);
 
     return DMGL_SUCCESS;
 }

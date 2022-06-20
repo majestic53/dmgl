@@ -91,6 +91,7 @@ typedef struct {
         dmgl_processor_interrupt_t enable;
         dmgl_processor_interrupt_t flag;
         uint8_t cycle;
+        uint8_t enabling;
         bool enabled;
     } interrupt;
 
