@@ -50,7 +50,7 @@ $(BUILD_DIRECTORY):
 	@mkdir -p $@
 
 $(BUILD_DIRECTORY)$(BINARY_FILE): $(BUILD_DIRECTORY) $(OBJECT_FILES)
-	cc $(FLAGS) $(LIBRARY_FLAGS) $(OBJECT_FILES) -o $@
+	cc $(FLAGS) $(OBJECT_FILES) $(LIBRARY_FLAGS) -o $@
 
 %.o: %.c
 	cc $(FLAGS) $(INCLUDE_FLAGS) -c -o $@ $<
