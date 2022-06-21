@@ -256,6 +256,11 @@ static inline dmgl_error_e dmgl_test_match(void)
         goto exit;
     }
 
+    if(DMGL_ASSERT(g_test_processor.processor.interrupt.enabling == g_test_processor.expected.interrupt.enabling)) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
     if(DMGL_ASSERT(g_test_processor.processor.interrupt.enabled == g_test_processor.expected.interrupt.enabled)) {
         result = DMGL_FAILURE;
         goto exit;
@@ -502,7 +507,7 @@ static dmgl_error_e dmgl_test_processor_interrupt(void)
 
     for(dmgl_interrupt_e interrupt = 0; interrupt < DMGL_INTERRUPT_MAX; ++interrupt) {
         dmgl_test_initialize();
-        g_test_processor.bus.value[0x0040 + (0x0008 * interrupt)] = 0xEF;
+        g_test_processor.bus.value[0x0040 + (0x0008 * interrupt)] = interrupt + 1;
         g_test_processor.processor.halt.enabled = true;
         g_test_processor.processor.stop.enabled = true;
         g_test_processor.processor.bank.pc.word = 0xABCD;
@@ -516,13 +521,11 @@ static dmgl_error_e dmgl_test_processor_interrupt(void)
         g_test_processor.expected.interrupt.enabled = true;
 
         for(uint32_t cycle = 0; cycle < 5; ++cycle) {
+            g_test_processor.processor.cycle = 3;
 
-            for(uint32_t tick = 0; tick <= 3; ++tick) {
-
-                if(DMGL_ASSERT(dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)) {
-                    result = DMGL_FAILURE;
-                    goto exit;
-                }
+            if(DMGL_ASSERT(dmgl_processor_clock(&g_test_processor.processor) == DMGL_SUCCESS)) {
+                result = DMGL_FAILURE;
+                goto exit;
             }
 
             switch(cycle) {
@@ -565,7 +568,7 @@ static dmgl_error_e dmgl_test_processor_interrupt(void)
                 case 4:
                     g_test_processor.expected.bank.pc.word = 0x0040 + (0x0008 * interrupt) + 1;
                     g_test_processor.expected.instruction.address.word = 0x0040 + (0x0008 * interrupt);
-                    g_test_processor.expected.instruction.opcode = 0xEF;
+                    g_test_processor.expected.instruction.opcode = interrupt + 1;
                     g_test_processor.expected.interrupt.cycle = 0;
                     break;
                 default:

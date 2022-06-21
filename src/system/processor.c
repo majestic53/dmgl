@@ -220,7 +220,7 @@ static bool dmgl_processor_instruction_rlc(dmgl_processor_t *processor)
 {
     bool result = true;
 
-    switch(processor->instruction.cycle - 1) {
+    switch(processor->instruction.cycle) {
 
         /* TODO */
 
@@ -521,8 +521,6 @@ static void dmgl_processor_interrupt(dmgl_processor_t *processor)
 
     switch(processor->interrupt.cycle) {
         case 0:
-            processor->halt.bug = false;
-            processor->halt.enabled = false;
             ++processor->interrupt.cycle;
             break;
         case 1:
@@ -569,6 +567,10 @@ dmgl_error_e dmgl_processor_clock(dmgl_processor_t *processor)
     dmgl_error_e result = DMGL_SUCCESS;
 
     if(processor->cycle == 3) {
+
+        if(processor->halt.enabled && (processor->interrupt.flag.raw & processor->interrupt.enable.raw & 0x1F)) {
+            processor->halt.enabled = false;
+        }
 
         if(!processor->instruction.cycle) {
 
