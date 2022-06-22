@@ -8,7 +8,11 @@ The goal of `DMGL` is to emulate the original Gameboy hardware with enough accur
 
 __NOTE__: `DMGL` is a still a work-in-progress. Some features may be incomplete or may contain bugs.
 
-## Build from Source
+## Latest release
+
+The latest release can be found [here](https://github.com/majestic53/dmgl/releases).
+
+## Build from source
 
 `DMGL` is dependant on the `SDL2` library. If you are on a Debian-based systems, install this library using apt:
 
@@ -37,6 +41,7 @@ Usage: dmgl [options] file...
 Options:
    -b, --bootloader   Specify bootloader path
    -h, --help         Show help information
+   -s, --scale        Set window scaling
    -v, --version      Show version information
 ```
 
@@ -48,25 +53,25 @@ dmgl cart.gb
 
 # To launch with a bootloader, run the following command
 dmgl -b boot.gb cart.gb
+
+# To launch with window scaling (1x-8x, with a default of 2x), run the following command
+dmgl -s [1-8] cart.gb
 ```
 
 ## Keybindings
 
 The following keybindings are available:
 
-|Key  |Button       |
-|:----|:------------|
-|L    |A button     |
-|K    |B button     |
-|C    |Select button|
-|Space|Start button |
-
-|Key  |D-pad          |
-|:----|:--------------|
-|W    |Up direction   |
-|A    |Left direction |
-|S    |Down direction |
-|D    |Right direction|
+|Button|Keyboard|
+|:-----|:-------|
+|A     |L       |
+|B     |K       |
+|Select|C       |
+|Start |Space   |
+|Up    |W       |
+|Left  |A       |
+|Down  |S       |
+|Right |D       |
 
 ## Mapper support
 

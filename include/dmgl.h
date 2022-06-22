@@ -40,6 +40,10 @@ typedef struct {
         void *data;
         int length;
     } cartridge;
+
+    struct {
+        int scale;
+    } window;
 } dmgl_t;
 
 typedef struct {

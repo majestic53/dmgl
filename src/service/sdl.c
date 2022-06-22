@@ -51,14 +51,26 @@ bool dmgl_service_button(dmgl_button_e button)
 
 dmgl_error_e dmgl_service_initialize(const dmgl_t *context, const char *title)
 {
+    int scale = 2;
+
     dmgl_error_e result = DMGL_SUCCESS;
+
+    if(context->window.scale) {
+        scale = context->window.scale;
+
+        if(scale < 1) {
+            scale = 1;
+        } else if(scale > 8) {
+            scale = 8;
+        }
+    }
 
     if(SDL_Init(SDL_INIT_VIDEO)) {
         result = DMGL_ERROR("SDL_Init failed -- %s", SDL_GetError());
         goto exit;
     }
 
-    if(!(g_sdl.window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 160 * 2, 144 * 2, SDL_WINDOW_RESIZABLE))) {
+    if(!(g_sdl.window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 160 * scale, 144 * scale, 0))) {
         result = DMGL_ERROR("SDL_CreateWindow failed -- %s", SDL_GetError());
         goto exit;
     }

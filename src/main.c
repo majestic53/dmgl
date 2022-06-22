@@ -30,6 +30,7 @@
 static const struct option OPTION[] = {
     { "bootloader", required_argument, NULL, 'b' },
     { "help", no_argument, NULL, 'h' },
+    { "scale", required_argument, NULL, 's' },
     { "version", no_argument, NULL, 'v' },
     { NULL, 0, NULL, 0 },
     };
@@ -92,7 +93,7 @@ static void show_help(const char *base)
     while(OPTION[flag].name) {
         char message[22] = {};
         const char *description[] = {
-            "Specify bootloader path", "Show help information", "Show version information",
+            "Specify bootloader path", "Show help information", "Set window scaling", "Show version information",
             };
 
         snprintf(message, sizeof(message), "   -%c, --%s", OPTION[flag].val, OPTION[flag].name);
@@ -123,7 +124,7 @@ int main(int argc, char *argv[])
 
     opterr = 1;
 
-    while((option = getopt_long(argc, argv, "b:hv", OPTION, &option_index)) != -1) {
+    while((option = getopt_long(argc, argv, "b:hs:v", OPTION, &option_index)) != -1) {
 
         switch(option) {
             case 'b':
@@ -143,6 +144,9 @@ int main(int argc, char *argv[])
             case 'h':
                 show_help(argv[0]);
                 goto exit;
+            case 's':
+                context.window.scale = strtol(optarg, NULL, 10);
+                break;
             case 'v':
                 show_version();
                 goto exit;
