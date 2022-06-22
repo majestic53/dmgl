@@ -169,7 +169,7 @@ static dmgl_error_e dmgl_test_mbc0_read(void)
                 break;
             default:
 
-                if(DMGL_ASSERT((value == 0)
+                if(DMGL_ASSERT((value == 0xFF)
                         && (g_test_mbc0.ram.cartridge == NULL)
                         && (g_test_mbc0.ram.index == 0)
                         && (g_test_mbc0.ram.address == 0x0000)

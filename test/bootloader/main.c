@@ -177,7 +177,7 @@ static dmgl_error_e dmgl_test_bootloader_read(void)
     g_test_bootloader.bootloader.data = g_test_bootloader.data;
 
     for(uint32_t address = 0x0000; address <= 0xFFFF; ++address, ++data) {
-        uint8_t expected = 0x00;
+        uint8_t expected = 0xFF;
 
         for(int enabled = false; enabled <= true; ++enabled) {
             g_test_bootloader.bootloader.enabled = enabled;
@@ -185,7 +185,7 @@ static dmgl_error_e dmgl_test_bootloader_read(void)
             switch(address) {
                 case 0x0000 ... 0x00FF:
                     g_test_bootloader.data[address] = data;
-                    expected = enabled ? data : 0x00;
+                    expected = enabled ? data : 0xFF;
                     break;
                 default:
                     break;

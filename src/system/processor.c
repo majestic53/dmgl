@@ -620,7 +620,7 @@ dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, bool has_boo
 
 uint8_t dmgl_processor_read(const dmgl_processor_t *processor, uint16_t address)
 {
-    uint8_t result = 0;
+    uint8_t result = 0xFF;
 
     switch(address) {
         case 0xFF0F:

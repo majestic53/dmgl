@@ -615,7 +615,7 @@ static dmgl_error_e dmgl_test_processor_read(void)
                 break;
             default:
 
-                if(DMGL_ASSERT(dmgl_processor_read(&g_test_processor.processor, address) == 0x00)) {
+                if(DMGL_ASSERT(dmgl_processor_read(&g_test_processor.processor, address) == 0xFF)) {
                     result = DMGL_FAILURE;
                     goto exit;
                 }

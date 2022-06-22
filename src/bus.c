@@ -83,7 +83,7 @@ void dmgl_bus_interrupt(dmgl_interrupt_e interrupt)
 
 uint8_t dmgl_bus_read(uint16_t address)
 {
-    uint8_t result = 0;
+    uint8_t result = 0xFF;
 
     switch(address) {
 

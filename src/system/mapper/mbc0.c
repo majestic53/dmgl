@@ -34,7 +34,7 @@ dmgl_error_e dmgl_mbc0_initialize(const dmgl_cartridge_t *cartridge, void **cont
 
 uint8_t dmgl_mbc0_read(const dmgl_cartridge_t *cartridge, void *context, uint16_t address)
 {
-    uint8_t result = 0;
+    uint8_t result = 0xFF;
 
     switch(address) {
         case 0x0000 ... 0x3FFF:

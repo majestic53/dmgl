@@ -53,7 +53,7 @@ exit:
 
 uint8_t dmgl_memory_read(const dmgl_memory_t *memory, uint16_t address)
 {
-    uint8_t result = 0;
+    uint8_t result = 0xFF;
 
     switch(address) {
         case 0x0000 ... 0x00FF:
