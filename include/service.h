@@ -54,7 +54,7 @@ dmgl_error_e dmgl_service_initialize(const dmgl_t *context, const char *title);
 
 void dmgl_service_pixel(dmgl_color_e color, uint8_t x, uint8_t y);
 
-bool dmgl_service_poll(void);
+dmgl_error_e dmgl_service_poll(void);
 
 dmgl_error_e dmgl_service_sync(void);
 

@@ -49,13 +49,13 @@ Options:
 
 ```bash
 # To launch with a cartridge, run the following command
-dmgl cart.gb
+dmgl cartridge.gb
 
 # To launch with a bootloader, run the following command
-dmgl -b boot.gb cart.gb
+dmgl --bootloader bootloader.gb cartridge.gb
 
 # To launch with window scaling (1x-8x, with a default of 2x), run the following command
-dmgl -s [1-8] cart.gb
+dmgl --scale [1-8] cartridge.gb
 ```
 
 ## Keybindings
@@ -70,16 +70,16 @@ The following keybindings are available:
 
 ### Controller
 
-|Button|Keyboard|
-|:-----|:-------|
-|A     |L       |
-|B     |K       |
-|Select|C       |
-|Start |Space   |
-|Up    |W       |
-|Left  |A       |
-|Down  |S       |
-|Right |D       |
+|Button|Keyboard|Retro USB Controller|
+|:-----|:-------|:-------------------|
+|A     |L       |A                   |
+|B     |K       |B                   |
+|Select|C       |Select              |
+|Start |Space   |Start               |
+|Right |D       |Right               |
+|Left  |A       |Left                |
+|Up    |W       |Up                  |
+|Down  |S       |Down                |
 
 ## Mapper support
 

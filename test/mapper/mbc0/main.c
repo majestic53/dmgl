@@ -197,6 +197,13 @@ static dmgl_error_e dmgl_test_mbc0_reset(void)
 
     dmgl_test_initialize();
     dmgl_mbc0_reset(&g_test_mbc0.context);
+
+    if(DMGL_ASSERT(g_test_mbc0.context == NULL)) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+exit:
     DMGL_TEST_RESULT(result);
 
     return result;

@@ -32,6 +32,8 @@ typedef struct {
     SDL_Renderer *renderer;
     SDL_Texture *texture;
     SDL_Cursor *cursor;
+    SDL_GameController *controller;
+    SDL_JoystickID joystick;
 } dmgl_sdl_t;
 
 static dmgl_sdl_t g_sdl = {};
@@ -53,19 +55,35 @@ static void dmgl_service_clear(void)
 
 bool dmgl_service_button(dmgl_button_e button)
 {
+    bool result = false;
     const int keys[] = {
         SDL_SCANCODE_L, SDL_SCANCODE_K, SDL_SCANCODE_C, SDL_SCANCODE_SPACE,
         SDL_SCANCODE_D, SDL_SCANCODE_A, SDL_SCANCODE_W, SDL_SCANCODE_S,
         };
 
-    return SDL_GetKeyboardState(NULL)[keys[button]] != 0;
+    if(g_sdl.controller) {
+        const SDL_GameControllerButton KEY[] = {
+            SDL_CONTROLLER_BUTTON_A, SDL_CONTROLLER_BUTTON_B, SDL_CONTROLLER_BUTTON_BACK, SDL_CONTROLLER_BUTTON_START,
+            SDL_CONTROLLER_BUTTON_DPAD_RIGHT, SDL_CONTROLLER_BUTTON_DPAD_LEFT, SDL_CONTROLLER_BUTTON_DPAD_UP, SDL_CONTROLLER_BUTTON_DPAD_DOWN,
+            };
+
+        result = SDL_GameControllerGetButton(g_sdl.controller, KEY[button]) ? true : false;
+    }
+
+    if(!result) {
+        result = SDL_GetKeyboardState(NULL)[keys[button]] ? true : false;
+    }
+
+    return result;
 }
 
 dmgl_error_e dmgl_service_initialize(const dmgl_t *context, const char *title)
 {
     int scale = 2;
-
     dmgl_error_e result = DMGL_SUCCESS;
+    const char *controller_map[] = {
+        "03000000790000001100000010010000,Retro Controller,a:b1,b:b2,back:b8,dpdown:+a1,dpleft:-a0,dpright:+a0,dpup:-a1,leftshoulder:b6,lefttrigger:b7,rightshoulder:b4,righttrigger:b5,start:b9,x:b0,y:b3,platform:Linux",
+        };
 
     if(context->window.scale) {
         scale = context->window.scale;
@@ -77,7 +95,7 @@ dmgl_error_e dmgl_service_initialize(const dmgl_t *context, const char *title)
         }
     }
 
-    if(SDL_Init(SDL_INIT_VIDEO)) {
+    if(SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_VIDEO)) {
         result = DMGL_ERROR("SDL_Init failed -- %s", SDL_GetError());
         goto exit;
     }
@@ -123,6 +141,15 @@ dmgl_error_e dmgl_service_initialize(const dmgl_t *context, const char *title)
     }
 
     SDL_SetCursor(g_sdl.cursor);
+
+    for(size_t index = 0; index < sizeof(controller_map) / sizeof(*controller_map); ++index) {
+
+        if(SDL_GameControllerAddMapping(controller_map[index]) == -1) {
+            result = DMGL_ERROR("SDL_GameControllerAddMapping failed -- %s", SDL_GetError());
+            goto exit;
+        }
+    }
+
     dmgl_service_clear();
 
 exit:
@@ -138,14 +165,42 @@ void dmgl_service_pixel(dmgl_color_e color, uint8_t x, uint8_t y)
     g_sdl.pixel[(y * 160) + x] = colors[color];
 }
 
-bool dmgl_service_poll(void)
+dmgl_error_e dmgl_service_poll(void)
 {
-    bool result = true;
     SDL_Event event;
+    dmgl_error_e result = DMGL_SUCCESS;
 
     while(SDL_PollEvent(&event)) {
 
         switch(event.type) {
+            case SDL_CONTROLLERDEVICEADDED:
+
+                if(!g_sdl.controller && SDL_IsGameController(event.cdevice.which)) {
+                    SDL_Joystick *joystick = NULL;
+
+                    if(!(g_sdl.controller = SDL_GameControllerOpen(event.cdevice.which))) {
+                        result = DMGL_ERROR("SDL_GameControllerOpen failed -- %s", SDL_GetError());
+                        goto exit;
+                    }
+
+                    if(!(joystick = SDL_GameControllerGetJoystick(g_sdl.controller))) {
+                        result = DMGL_ERROR("SDL_GameControllerGetJoystick failed -- %s", SDL_GetError());
+                        goto exit;
+                    }
+
+                    if((g_sdl.joystick = SDL_JoystickInstanceID(joystick)) == -1) {
+                        result = DMGL_ERROR("SDL_JoystickInstanceID failed -- %s", SDL_GetError());
+                        goto exit;
+                    }
+                }
+                break;
+            case SDL_CONTROLLERDEVICEREMOVED:
+
+                if(g_sdl.controller && (g_sdl.joystick == event.cdevice.which)) {
+                    SDL_GameControllerClose(g_sdl.controller);
+                    g_sdl.controller = NULL;
+                }
+                break;
             case SDL_KEYUP:
 
                 if(!event.key.repeat) {
@@ -161,7 +216,7 @@ bool dmgl_service_poll(void)
                 }
                 break;
             case SDL_QUIT:
-                result = false;
+                result = DMGL_COMPLETE;
                 goto exit;
             default:
                 break;
@@ -205,6 +260,10 @@ exit:
 
 void dmgl_service_uninitialize(void)
 {
+
+    if(g_sdl.controller) {
+        SDL_GameControllerClose(g_sdl.controller);
+    }
 
     if(g_sdl.cursor) {
         SDL_FreeCursor(g_sdl.cursor);

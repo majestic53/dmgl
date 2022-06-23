@@ -32,6 +32,6 @@
 
 #define DMGL_MAJOR 0
 #define DMGL_MINOR 1
-#define DMGL_PATCH 0x4311c9a
+#define DMGL_PATCH 0x66e2050
 
 #endif /* DMGL_DEFINE_H_ */

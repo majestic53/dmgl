@@ -38,7 +38,7 @@ dmgl_error_e dmgl(const dmgl_t *context)
         goto exit;
     }
 
-    while(dmgl_service_poll()) {
+    while(dmgl_service_poll() == DMGL_SUCCESS) {
 
         while((result = dmgl_bus_clock()) != DMGL_COMPLETE) {
 
@@ -56,7 +56,7 @@ exit:
     dmgl_service_uninitialize();
     dmgl_bus_uninitialize();
 
-    return result;
+    return (result == DMGL_COMPLETE) ? DMGL_SUCCESS : result;
 }
 
 #ifdef __cplusplus
