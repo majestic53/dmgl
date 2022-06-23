@@ -17,7 +17,7 @@ jobs:
           sudo apt-get install cloc cppcheck
       - name: Dependency Information
         run: |
-          ecgo "cloc `cloc --version`"
+          echo "cloc `cloc --version`"
           echo "`cppcheck --version`"
       - name: Run Analysis
         run: |
