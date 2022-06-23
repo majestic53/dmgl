@@ -35,7 +35,7 @@ dmgl_error_e dmgl_mapper_initialize(dmgl_mapper_t *mapper, const uint8_t *data, 
     dmgl_error_e result;
     dmgl_cartridge_e type;
     const dmgl_mapper_handler_t handler[] = {
-        { dmgl_mbc0_initialize, dmgl_mbc0_read, dmgl_mbc0_uninitialize, dmgl_mbc0_write, },
+        { dmgl_mbc0_initialize, dmgl_mbc0_read, dmgl_mbc0_reset, dmgl_mbc0_uninitialize, dmgl_mbc0_write, },
         };
 
     if((result = dmgl_cartridge_initialize(&mapper->cartridge, data, length)) != DMGL_SUCCESS) {
@@ -55,6 +55,12 @@ exit:
 uint8_t dmgl_mapper_read(const dmgl_mapper_t *mapper, uint16_t address)
 {
     return mapper->handler.read(&mapper->cartridge, mapper->context, address);
+}
+
+void dmgl_mapper_reset(dmgl_mapper_t *mapper)
+{
+    dmgl_cartridge_reset(&mapper->cartridge);
+    mapper->handler.reset(mapper->context);
 }
 
 const char *dmgl_mapper_title(const dmgl_mapper_t *mapper)

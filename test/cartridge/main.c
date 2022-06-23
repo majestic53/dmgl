@@ -304,6 +304,39 @@ exit:
     return result;
 }
 
+static dmgl_error_e dmgl_test_cartridge_reset(void)
+{
+    uint8_t data = 0x00;
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+
+    for(size_t index = 0; index < 2; ++index) {
+
+        for(uint16_t address = 0x0000; address <= 0x1FFF; ++address, ++data) {
+            g_test_cartridge.cartridge.ram.bank[index][address] = data;
+        }
+    }
+
+    dmgl_cartridge_reset(&g_test_cartridge.cartridge);
+
+    for(size_t index = 0; index < 2; ++index) {
+
+        for(uint16_t address = 0x0000; address <= 0x1FFF; ++address, ++data) {
+
+            if(DMGL_ASSERT(g_test_cartridge.cartridge.ram.bank[index][address] == 0xFF)) {
+                result = DMGL_FAILURE;
+                goto exit;
+            }
+        }
+    }
+
+exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
 static dmgl_error_e dmgl_test_cartridge_rom_count(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -409,8 +442,8 @@ int main(void)
     dmgl_error_e result = DMGL_SUCCESS;
     const dmgl_test_cb tests[] = {
         dmgl_test_cartridge_checksum, dmgl_test_cartridge_initialize, dmgl_test_cartridge_ram_count, dmgl_test_cartridge_ram_read,
-        dmgl_test_cartridge_ram_write, dmgl_test_cartridge_rom_count, dmgl_test_cartridge_rom_read, dmgl_test_cartridge_title,
-        dmgl_test_cartridge_type, dmgl_test_cartridge_uninitialize,
+        dmgl_test_cartridge_ram_write, dmgl_test_cartridge_reset, dmgl_test_cartridge_rom_count, dmgl_test_cartridge_rom_read,
+        dmgl_test_cartridge_title, dmgl_test_cartridge_type, dmgl_test_cartridge_uninitialize,
         };
 
     for(int index = 0; index < (sizeof(tests) / sizeof(*(tests))); ++index) {

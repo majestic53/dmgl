@@ -204,6 +204,34 @@ exit:
     return result;
 }
 
+static dmgl_error_e dmgl_test_bootloader_reset(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+    g_test_bootloader.bootloader.data = NULL;
+    dmgl_bootloader_reset(&g_test_bootloader.bootloader);
+
+    if(DMGL_ASSERT(g_test_bootloader.bootloader.enabled == false)) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+    dmgl_test_initialize();
+    g_test_bootloader.bootloader.data = g_test_bootloader.data;
+    dmgl_bootloader_reset(&g_test_bootloader.bootloader);
+
+    if(DMGL_ASSERT(g_test_bootloader.bootloader.enabled == true)) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
 static dmgl_error_e dmgl_test_bootloader_uninitialize(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -230,7 +258,7 @@ int main(void)
     dmgl_error_e result = DMGL_SUCCESS;
     const dmgl_test_cb tests[] = {
         dmgl_test_bootloader_disable, dmgl_test_bootloader_enabled, dmgl_test_bootloader_initialize, dmgl_test_bootloader_read,
-        dmgl_test_bootloader_uninitialize,
+        dmgl_test_bootloader_reset, dmgl_test_bootloader_uninitialize,
         };
 
     for(int index = 0; index < (sizeof(tests) / sizeof(*(tests))); ++index) {

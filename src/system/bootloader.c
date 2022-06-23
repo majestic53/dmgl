@@ -87,6 +87,11 @@ uint8_t dmgl_bootloader_read(const dmgl_bootloader_t *bootloader, uint16_t addre
     return result;
 }
 
+void dmgl_bootloader_reset(dmgl_bootloader_t *bootloader)
+{
+    bootloader->enabled = (bootloader->data != NULL);
+}
+
 void dmgl_bootloader_uninitialize(dmgl_bootloader_t *bootloader)
 {
     memset(bootloader, 0, sizeof(*bootloader));

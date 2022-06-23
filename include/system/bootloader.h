@@ -41,6 +41,8 @@ dmgl_error_e dmgl_bootloader_initialize(dmgl_bootloader_t *bootloader, const uin
 
 uint8_t dmgl_bootloader_read(const dmgl_bootloader_t *bootloader, uint16_t address);
 
+void dmgl_bootloader_reset(dmgl_bootloader_t *bootloader);
+
 void dmgl_bootloader_uninitialize(dmgl_bootloader_t *bootloader);
 
 #ifdef __cplusplus

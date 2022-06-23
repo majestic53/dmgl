@@ -33,6 +33,7 @@ typedef struct {
         uint8_t value;
         bool enabled;
         bool initialized;
+        bool reset;
         dmgl_error_e status;
     } bootloader;
 
@@ -44,6 +45,7 @@ typedef struct {
         uint8_t value;
         uint8_t checksum;
         bool initialized;
+        bool reset;
         const char *title;
         dmgl_error_e status;
     } mapper;
@@ -86,6 +88,11 @@ uint8_t dmgl_bootloader_read(const dmgl_bootloader_t *bootloader, uint16_t addre
     return g_test_memory.bootloader.value;
 }
 
+void dmgl_bootloader_reset(dmgl_bootloader_t *bootloader)
+{
+    g_test_memory.bootloader.reset = true;
+}
+
 void dmgl_bootloader_uninitialize(dmgl_bootloader_t *bootloader)
 {
     g_test_memory.bootloader.bootloader = bootloader;
@@ -115,6 +122,11 @@ uint8_t dmgl_mapper_read(const dmgl_mapper_t *mapper, uint16_t address)
     g_test_memory.mapper.address = address;
 
     return g_test_memory.mapper.value;
+}
+
+void dmgl_mapper_reset(dmgl_mapper_t *mapper)
+{
+    g_test_memory.mapper.reset = true;
 }
 
 const char *dmgl_mapper_title(const dmgl_mapper_t *mapper)
@@ -323,6 +335,25 @@ exit:
     return result;
 }
 
+static dmgl_error_e dmgl_test_memory_reset(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+    dmgl_memory_reset(&g_test_memory.memory);
+
+    if(DMGL_ASSERT((g_test_memory.bootloader.reset == true)
+            && (g_test_memory.mapper.reset == true))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
 static dmgl_error_e dmgl_test_memory_title(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -442,7 +473,7 @@ int main(void)
     dmgl_error_e result = DMGL_SUCCESS;
     const dmgl_test_cb tests[] = {
         dmgl_test_memory_checksum, dmgl_test_memory_has_bootloader, dmgl_test_memory_initialize, dmgl_test_memory_read,
-        dmgl_test_memory_title, dmgl_test_memory_uninitialize, dmgl_test_memory_write,
+        dmgl_test_memory_reset, dmgl_test_memory_title, dmgl_test_memory_uninitialize, dmgl_test_memory_write,
         };
 
     for(int index = 0; index < (sizeof(tests) / sizeof(*(tests))); ++index) {

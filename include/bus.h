@@ -45,6 +45,8 @@ void dmgl_bus_interrupt(dmgl_interrupt_e interrupt);
 
 uint8_t dmgl_bus_read(uint16_t address);
 
+void dmgl_bus_reset(void);
+
 const char *dmgl_bus_title(void);
 
 void dmgl_bus_uninitialize(void);

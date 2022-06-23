@@ -34,6 +34,7 @@ typedef struct {
         dmgl_cartridge_e type;
         uint8_t checksum;
         bool initialized;
+        bool reset;
     } cartridge;
 
     struct {
@@ -43,6 +44,7 @@ typedef struct {
         uint16_t address;
         uint8_t value;
         bool initialized;
+        bool reset;
     } mbc;
 } dmgl_test_mapper_t;
 
@@ -67,6 +69,11 @@ dmgl_error_e dmgl_cartridge_initialize(dmgl_cartridge_t *cartridge, const uint8_
     g_test_mapper.cartridge.initialized = true;
 
     return g_test_mapper.cartridge.status;
+}
+
+void dmgl_cartridge_reset(dmgl_cartridge_t *cartridge)
+{
+    g_test_mapper.cartridge.reset = true;
 }
 
 const char *dmgl_cartridge_title(const dmgl_cartridge_t *cartridge)
@@ -107,6 +114,11 @@ uint8_t dmgl_mbc_read(const dmgl_cartridge_t *cartridge, void *context, uint16_t
     return g_test_mapper.mbc.value;
 }
 
+void dmgl_mbc_reset(void *context)
+{
+    g_test_mapper.mbc.reset = true;
+}
+
 void dmgl_mbc_uninitialize(void *context)
 {
     g_test_mapper.mbc.context = context;
@@ -129,6 +141,11 @@ dmgl_error_e dmgl_mbc0_initialize(const dmgl_cartridge_t *cartridge, void **cont
 uint8_t dmgl_mbc0_read(const dmgl_cartridge_t *cartridge, void *context, uint16_t address)
 {
     return dmgl_mbc_read(cartridge, context, address);
+}
+
+void dmgl_mbc0_reset(void *context)
+{
+    dmgl_mbc_reset(context);
 }
 
 void dmgl_mbc0_uninitialize(void *context)
@@ -179,7 +196,7 @@ static dmgl_error_e dmgl_test_mapper_initialize(void)
 
     for(dmgl_cartridge_e type = 0; type < DMGL_CARTRIDGE_MAX; ++type) {
         const dmgl_mapper_handler_t handler[] = {
-            { dmgl_mbc0_initialize, dmgl_mbc0_read, dmgl_mbc0_uninitialize, dmgl_mbc0_write, },
+            { dmgl_mbc0_initialize, dmgl_mbc0_read, dmgl_mbc0_reset, dmgl_mbc0_uninitialize, dmgl_mbc0_write, },
             };
 
         dmgl_test_initialize();
@@ -238,6 +255,26 @@ static dmgl_error_e dmgl_test_mapper_read(void)
             result = DMGL_FAILURE;
             goto exit;
         }
+    }
+
+exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
+static dmgl_error_e dmgl_test_mapper_reset(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+    g_test_mapper.mapper.handler.reset = dmgl_mbc_reset;
+    dmgl_mapper_reset(&g_test_mapper.mapper);
+
+    if(DMGL_ASSERT((g_test_mapper.cartridge.reset == true)
+            && (g_test_mapper.mbc.reset == true))) {
+        result = DMGL_FAILURE;
+        goto exit;
     }
 
 exit:
@@ -321,8 +358,8 @@ int main(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
     const dmgl_test_cb tests[] = {
-        dmgl_test_mapper_checksum, dmgl_test_mapper_initialize, dmgl_test_mapper_read, dmgl_test_mapper_title,
-        dmgl_test_mapper_uninitialize, dmgl_test_mapper_write,
+        dmgl_test_mapper_checksum, dmgl_test_mapper_initialize, dmgl_test_mapper_read, dmgl_test_mapper_reset,
+        dmgl_test_mapper_title, dmgl_test_mapper_uninitialize, dmgl_test_mapper_write,
         };
 
     for(int index = 0; index < (sizeof(tests) / sizeof(*(tests))); ++index) {

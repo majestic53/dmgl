@@ -115,6 +115,8 @@ dmgl_error_e dmgl_cartridge_initialize(dmgl_cartridge_t *cartridge, const uint8_
             result = DMGL_ERROR("Cartridge failed to allocate RAM bank -- %zu", index);
             goto exit;
         }
+
+        memset(cartridge->ram.bank[index], 0xFF, 8 * 1024 * sizeof(*cartridge->ram.bank[index]));
     }
 
     cartridge->ram.count = count;
@@ -148,6 +150,14 @@ uint8_t dmgl_cartridge_ram_read(const dmgl_cartridge_t *cartridge, size_t index,
 void dmgl_cartridge_ram_write(dmgl_cartridge_t *cartridge, size_t index, uint16_t address, uint8_t value)
 {
     cartridge->ram.bank[index][address] = value;
+}
+
+void dmgl_cartridge_reset(dmgl_cartridge_t *cartridge)
+{
+
+    for(size_t index = 0; index < cartridge->ram.count; ++index) {
+        memset(cartridge->ram.bank[index], 0xFF, 8 * 1024 * sizeof(*cartridge->ram.bank[index]));
+    }
 }
 
 size_t dmgl_cartridge_rom_count(const dmgl_cartridge_t *cartridge)

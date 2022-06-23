@@ -47,6 +47,8 @@ dmgl_error_e dmgl_memory_initialize(dmgl_memory_t *memory, const dmgl_t *context
         goto exit;
     }
 
+    dmgl_memory_reset(memory);
+
 exit:
     return result;
 }
@@ -85,6 +87,16 @@ uint8_t dmgl_memory_read(const dmgl_memory_t *memory, uint16_t address)
     }
 
     return result;
+}
+
+void dmgl_memory_reset(dmgl_memory_t *memory)
+{
+    dmgl_bootloader_reset(&memory->bootloader);
+    dmgl_mapper_reset(&memory->mapper);
+    memset(memory->high, 0xFF, sizeof(*memory->high));
+    memset(memory->internal, 0xFF, sizeof(*memory->internal));
+    memset(memory->sprite, 0xFF, sizeof(*memory->sprite));
+    memset(memory->video, 0xFF, sizeof(*memory->video));
 }
 
 const char *dmgl_memory_title(const dmgl_memory_t *memory)

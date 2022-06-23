@@ -62,6 +62,14 @@ dmgl -s [1-8] cart.gb
 
 The following keybindings are available:
 
+### General
+
+|Button|Keyboard|
+|:-----|:-------|
+|Reset |R       |
+
+### Controller
+
 |Button|Keyboard|
 |:-----|:-------|
 |A     |L       |

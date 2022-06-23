@@ -36,6 +36,7 @@ typedef struct {
         bool has_bootloader;
         uint8_t checksum;
         bool initialized;
+        bool reset;
     } memory;
 
     struct {
@@ -46,6 +47,7 @@ typedef struct {
         bool has_bootloader;
         uint8_t checksum;
         bool initialized;
+        bool reset;
         bool clock;
     } processor;
 } dmgl_test_bus_t;
@@ -87,6 +89,11 @@ uint8_t dmgl_memory_read(const dmgl_memory_t *memory, uint16_t address)
     return g_test_bus.memory.value;
 }
 
+void dmgl_memory_reset(dmgl_memory_t *memory)
+{
+    g_test_bus.memory.reset = true;
+}
+
 const char *dmgl_memory_title(const dmgl_memory_t *memory)
 {
     g_test_bus.memory.memory = memory;
@@ -115,14 +122,12 @@ dmgl_error_e dmgl_processor_clock(dmgl_processor_t *processor)
     return g_test_bus.processor.status;
 }
 
-dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, bool has_bootloader, uint8_t checksum)
+void dmgl_processor_initialize(dmgl_processor_t *processor, bool has_bootloader, uint8_t checksum)
 {
     g_test_bus.processor.processor = processor;
     g_test_bus.processor.has_bootloader = has_bootloader;
     g_test_bus.processor.checksum = checksum;
     g_test_bus.processor.initialized = true;
-
-    return g_test_bus.processor.status;
 }
 
 uint8_t dmgl_processor_read(const dmgl_processor_t *processor, uint16_t address)
@@ -131,6 +136,11 @@ uint8_t dmgl_processor_read(const dmgl_processor_t *processor, uint16_t address)
     g_test_bus.processor.address = address;
 
     return g_test_bus.processor.value;
+}
+
+void dmgl_processor_reset(dmgl_processor_t *processor)
+{
+    g_test_bus.processor.reset = true;
 }
 
 void dmgl_processor_uninitialize(dmgl_processor_t *processor)
@@ -202,17 +212,6 @@ static dmgl_error_e dmgl_test_bus_initialize(void)
     g_test_bus.memory.status = DMGL_FAILURE;
 
     if(DMGL_ASSERT(dmgl_bus_initialize(&context) == DMGL_FAILURE)) {
-        result = DMGL_FAILURE;
-        goto exit;
-    }
-
-    dmgl_test_initialize();
-    g_test_bus.processor.status = DMGL_FAILURE;
-
-    if(DMGL_ASSERT((dmgl_bus_initialize(&context) == DMGL_FAILURE)
-            && (g_test_bus.memory.memory != NULL)
-            && (g_test_bus.memory.context == &context)
-            && (g_test_bus.memory.initialized == true))) {
         result = DMGL_FAILURE;
         goto exit;
     }
@@ -305,6 +304,25 @@ exit:
     return result;
 }
 
+static dmgl_error_e dmgl_test_bus_reset(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+    dmgl_bus_reset();
+
+    if(DMGL_ASSERT((g_test_bus.memory.reset == true)
+            && (g_test_bus.processor.reset == true))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
 static dmgl_error_e dmgl_test_bus_title(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -389,7 +407,7 @@ int main(void)
     dmgl_error_e result = DMGL_SUCCESS;
     const dmgl_test_cb tests[] = {
         dmgl_test_bus_clock, dmgl_test_bus_initialize, dmgl_test_bus_interrupt, dmgl_test_bus_read,
-        dmgl_test_bus_title, dmgl_test_bus_uninitialize, dmgl_test_bus_write,
+        dmgl_test_bus_reset, dmgl_test_bus_title, dmgl_test_bus_uninitialize, dmgl_test_bus_write,
         };
 
     for(int index = 0; index < (sizeof(tests) / sizeof(*(tests))); ++index) {

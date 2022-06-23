@@ -63,6 +63,8 @@ typedef union {
 
 typedef struct {
     uint8_t cycle;
+    uint8_t checksum;
+    bool has_bootloader;
 
     struct {
         dmgl_processor_register_t af;
@@ -107,9 +109,11 @@ extern "C" {
 
 dmgl_error_e dmgl_processor_clock(dmgl_processor_t *processor);
 
-dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, bool has_bootloader, uint8_t checksum);
+void dmgl_processor_initialize(dmgl_processor_t *processor, bool has_bootloader, uint8_t checksum);
 
 uint8_t dmgl_processor_read(const dmgl_processor_t *processor, uint16_t address);
+
+void dmgl_processor_reset(dmgl_processor_t *processor);
 
 void dmgl_processor_uninitialize(dmgl_processor_t *processor);
 

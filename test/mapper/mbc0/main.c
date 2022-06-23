@@ -191,6 +191,17 @@ exit:
     return result;
 }
 
+static dmgl_error_e dmgl_test_mbc0_reset(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+    dmgl_mbc0_reset(&g_test_mbc0.context);
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
 static dmgl_error_e dmgl_test_mbc0_uninitialize(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -260,7 +271,8 @@ int main(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
     const dmgl_test_cb tests[] = {
-        dmgl_test_mbc0_initialize, dmgl_test_mbc0_read, dmgl_test_mbc0_uninitialize, dmgl_test_mbc0_write,
+        dmgl_test_mbc0_initialize, dmgl_test_mbc0_read, dmgl_test_mbc0_reset, dmgl_test_mbc0_uninitialize,
+        dmgl_test_mbc0_write,
         };
 
     for(int index = 0; index < (sizeof(tests) / sizeof(*(tests))); ++index) {

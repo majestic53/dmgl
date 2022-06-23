@@ -17,6 +17,7 @@
 # AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+DOCS_DIRECTORY=docs/
 SOURCE_DIRECTORY=./src/
 TEST_DIRECTORY=./test/
 
@@ -28,10 +29,15 @@ MAKE_FLAGS=--no-print-directory -C
 .PHONY: all
 all: release
 
-.PHONY: clean
-clean:
-	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) clean
-	@make $(MAKE_FLAGS) $(TEST_DIRECTORY) clean
+.PHONY: analyze
+analyze:
+	@cloc .
+	@cppcheck --enable=all --std=c11 --suppress=missingIncludeSystem .
+
+.PHONY: docs
+docs:
+	@rm -rf $(DOCS_DIRECTORY)html
+	@doxygen $(DOCS_DIRECTORY)Doxyfile
 
 .PHONY: debug
 debug: clean
@@ -48,3 +54,9 @@ release: clean
 test: clean
 	@make $(MAKE_FLAGS) $(TEST_DIRECTORY) build $(DEBUG_FLAGS)
 	@make $(MAKE_FLAGS) $(TEST_DIRECTORY) run
+
+.PHONY: clean
+clean:
+	@make $(MAKE_FLAGS) $(SOURCE_DIRECTORY) clean
+	@make $(MAKE_FLAGS) $(TEST_DIRECTORY) clean
+	@rm -rf $(DOCS_DIRECTORY)html

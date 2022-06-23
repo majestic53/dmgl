@@ -66,9 +66,7 @@ dmgl_error_e dmgl_bus_initialize(const dmgl_t *context)
         goto exit;
     }
 
-    if((result = dmgl_processor_initialize(&g_bus.processor, dmgl_memory_has_bootloader(&g_bus.memory), dmgl_memory_checksum(&g_bus.memory))) != DMGL_SUCCESS) {
-        goto exit;
-    }
+    dmgl_processor_initialize(&g_bus.processor, dmgl_memory_has_bootloader(&g_bus.memory), dmgl_memory_checksum(&g_bus.memory));
 
     /* TODO: INITIALIZE SUBSYSTEMS */
 
@@ -99,6 +97,14 @@ uint8_t dmgl_bus_read(uint16_t address)
     }
 
     return result;
+}
+
+void dmgl_bus_reset(void)
+{
+    dmgl_memory_reset(&g_bus.memory);
+    dmgl_processor_reset(&g_bus.processor);
+
+    /* TODO: RESET SUBSYSTEMS */
 }
 
 const char *dmgl_bus_title(void)

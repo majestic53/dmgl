@@ -596,26 +596,11 @@ exit:
     return result;
 }
 
-dmgl_error_e dmgl_processor_initialize(dmgl_processor_t *processor, bool has_bootloader, uint8_t checksum)
+void dmgl_processor_initialize(dmgl_processor_t *processor, bool has_bootloader, uint8_t checksum)
 {
-
-    if(!has_bootloader) {
-        processor->bank.af.high = 0x01;
-        processor->bank.af.carry = checksum ? 1 : 0;
-        processor->bank.af.half_carry = checksum ? 1 : 0;
-        processor->bank.af.zero = 1;
-        processor->bank.bc.word = 0x0013;
-        processor->bank.de.word = 0x00D8;
-        processor->bank.hl.word = 0x014D;
-        processor->bank.pc.word = 0x0100;
-        processor->bank.sp.word = 0xFFFE;
-        processor->interrupt.flag.raw = 0xE1;
-    }
-
-    processor->instruction.address.word = processor->bank.pc.word;
-    processor->instruction.opcode = dmgl_processor_fetch(processor);
-
-    return DMGL_SUCCESS;
+    processor->checksum = checksum;
+    processor->has_bootloader = has_bootloader;
+    dmgl_processor_reset(processor);
 }
 
 uint8_t dmgl_processor_read(const dmgl_processor_t *processor, uint16_t address)
@@ -634,6 +619,26 @@ uint8_t dmgl_processor_read(const dmgl_processor_t *processor, uint16_t address)
     }
 
     return result;
+}
+
+void dmgl_processor_reset(dmgl_processor_t *processor)
+{
+
+    if(!processor->has_bootloader) {
+        processor->bank.af.high = 0x01;
+        processor->bank.af.carry = processor->checksum ? 1 : 0;
+        processor->bank.af.half_carry = processor->checksum ? 1 : 0;
+        processor->bank.af.zero = 1;
+        processor->bank.bc.word = 0x0013;
+        processor->bank.de.word = 0x00D8;
+        processor->bank.hl.word = 0x014D;
+        processor->bank.pc.word = 0x0100;
+        processor->bank.sp.word = 0xFFFE;
+        processor->interrupt.flag.raw = 0xE1;
+    }
+
+    processor->instruction.address.word = processor->bank.pc.word;
+    processor->instruction.opcode = dmgl_processor_fetch(processor);
 }
 
 void dmgl_processor_uninitialize(dmgl_processor_t *processor)

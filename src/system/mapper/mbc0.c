@@ -53,6 +53,11 @@ uint8_t dmgl_mbc0_read(const dmgl_cartridge_t *cartridge, void *context, uint16_
     return result;
 }
 
+void dmgl_mbc0_reset(void *context)
+{
+    return;
+}
+
 void dmgl_mbc0_uninitialize(void *context)
 {
     return;

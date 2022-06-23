@@ -74,6 +74,8 @@ uint8_t dmgl_cartridge_ram_read(const dmgl_cartridge_t *cartridge, size_t index,
 
 void dmgl_cartridge_ram_write(dmgl_cartridge_t *cartridge, size_t index, uint16_t address, uint8_t value);
 
+void dmgl_cartridge_reset(dmgl_cartridge_t *cartridge);
+
 size_t dmgl_cartridge_rom_count(const dmgl_cartridge_t *cartridge);
 
 uint8_t dmgl_cartridge_rom_read(const dmgl_cartridge_t *cartridge, size_t index, uint16_t address);

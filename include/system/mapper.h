@@ -27,6 +27,7 @@
 typedef struct {
     dmgl_error_e (*initialize)(const dmgl_cartridge_t *, void **);
     uint8_t (*read)(const dmgl_cartridge_t *, void *, uint16_t);
+    void (*reset)(void *);
     void (*uninitialize)(void *);
     void (*write)(dmgl_cartridge_t *, void *, uint16_t, uint8_t);
 } dmgl_mapper_handler_t;
@@ -46,6 +47,8 @@ uint8_t dmgl_mapper_checksum(const dmgl_mapper_t *mapper);
 dmgl_error_e dmgl_mapper_initialize(dmgl_mapper_t *mapper, const uint8_t *data, size_t length);
 
 uint8_t dmgl_mapper_read(const dmgl_mapper_t *mapper, uint16_t address);
+
+void dmgl_mapper_reset(dmgl_mapper_t *mapper);
 
 const char *dmgl_mapper_title(const dmgl_mapper_t *mapper);
 

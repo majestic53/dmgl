@@ -22,6 +22,7 @@
 #include <common.h>
 
 #include <SDL2/SDL.h>
+#include <bus.h>
 #include <service.h>
 
 typedef struct {
@@ -38,6 +39,17 @@ static dmgl_sdl_t g_sdl = {};
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+static void dmgl_service_clear(void)
+{
+
+    for(uint8_t y = 0; y < 144; ++y) {
+
+        for(uint8_t x = 0; x < 160; ++x) {
+            dmgl_service_pixel(DMGL_COLOR_WHITE, x, y);
+        }
+    }
+}
 
 bool dmgl_service_button(dmgl_button_e button)
 {
@@ -111,13 +123,7 @@ dmgl_error_e dmgl_service_initialize(const dmgl_t *context, const char *title)
     }
 
     SDL_SetCursor(g_sdl.cursor);
-
-    for(uint8_t y = 0; y < 144; ++y) {
-
-        for(uint8_t x = 0; x < 160; ++x) {
-            dmgl_service_pixel(DMGL_COLOR_WHITE, x, y);
-        }
-    }
+    dmgl_service_clear();
 
 exit:
     return result;
@@ -139,12 +145,30 @@ bool dmgl_service_poll(void)
 
     while(SDL_PollEvent(&event)) {
 
-        if(event.type == SDL_QUIT) {
-            result = false;
-            break;
+        switch(event.type) {
+            case SDL_KEYUP:
+
+                if(!event.key.repeat) {
+
+                    switch(event.key.keysym.scancode) {
+                        case SDL_SCANCODE_R:
+                            dmgl_service_clear();
+                            dmgl_bus_reset();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                break;
+            case SDL_QUIT:
+                result = false;
+                goto exit;
+            default:
+                break;
         }
     }
 
+exit:
     return result;
 }
 
