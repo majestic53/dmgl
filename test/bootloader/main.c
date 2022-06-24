@@ -19,22 +19,31 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file main.c
+ * @brief Bootloader test application.
+ */
+
 #include <bootloader.h>
 #include <test.h>
 
+/*!
+ * @struct dmgl_test_bootloader_t
+ * @brief Bootloader test context.
+ */
 typedef struct {
-    dmgl_bootloader_t bootloader;
-    uint8_t data[256];
+    dmgl_bootloader_t bootloader;                       /*!< Bootloader test context */
+    uint8_t data[256];                                  /*!< Bootloader data */
 
     struct {
-        const void *data;
-        uint8_t value;
-        size_t begin;
-        size_t end;
-    } checksum;
+        const void *data;                               /*!< Bootloader checksum data */
+        uint8_t value;                                  /*!< Bootloader checksum value */
+        size_t begin;                                   /*!< Bootloader checksum begin index */
+        size_t end;                                     /*!< Bootloader checksum end index */
+    } checksum;                                         /*!< Bootloader checksum */
 } dmgl_test_bootloader_t;
 
-static dmgl_test_bootloader_t g_test_bootloader = {};
+static dmgl_test_bootloader_t g_test_bootloader = {};   /*!< Bootloader test context */
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,11 +58,18 @@ uint8_t dmgl_checksum(const void *data, size_t begin, size_t end)
     return g_test_bootloader.checksum.value;
 }
 
+/*!
+ * @brief Initilalize test context.
+ */
 static inline void dmgl_test_initialize(void)
 {
     memset(&g_test_bootloader, 0, sizeof(g_test_bootloader));
 }
 
+/*!
+ * @brief Test bootloader disable.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_bootloader_disable(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -81,6 +97,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test bootloader enabled.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_bootloader_enabled(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -106,6 +126,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test bootloader initialize.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_bootloader_initialize(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -168,6 +192,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test bootloader read.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_bootloader_read(void)
 {
     uint8_t data = 0x00;
@@ -204,6 +232,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test bootloader reset.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_bootloader_reset(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -232,6 +264,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test bootloader uninitialize.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_bootloader_uninitialize(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;

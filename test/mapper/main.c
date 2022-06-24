@@ -19,36 +19,45 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file main.c
+ * @brief Mapper subsystem test application.
+ */
+
 #include <mapper.h>
 #include <test.h>
 
+/*!
+ * @struct dmgl_test_mapper_t
+ * @brief Mapper test context.
+ */
 typedef struct {
-    dmgl_mapper_t mapper;
+    dmgl_mapper_t mapper;                       /*!< Mapper context */
 
     struct {
-        const dmgl_cartridge_t *cartridge;
-        const uint8_t *data;
-        size_t length;
-        dmgl_error_e status;
-        const char *title;
-        dmgl_cartridge_e type;
-        uint8_t checksum;
-        bool initialized;
-        bool reset;
-    } cartridge;
+        const dmgl_cartridge_t *cartridge;      /*!< Mapper cartridge context */
+        const uint8_t *data;                    /*!< Mapper cartridge data */
+        size_t length;                          /*!< Mapper cartridge length */
+        dmgl_error_e status;                    /*!< Mapper cartridge status */
+        const char *title;                      /*!< Mapper cartridge title string */
+        dmgl_cartridge_e type;                  /*!< Mapper cartridge type */
+        uint8_t checksum;                       /*!< Mapper cartridge checksum */
+        bool initialized;                       /*!< Mapper cartridge initialized flag */
+        bool reset;                             /*!< Mapper cartridge reset flag */
+    } cartridge;                                /*!< Mapper cartridge */
 
     struct {
-        const dmgl_cartridge_t *cartridge;
-        void *context;
-        dmgl_error_e status;
-        uint16_t address;
-        uint8_t value;
-        bool initialized;
-        bool reset;
-    } mbc;
+        const dmgl_cartridge_t *cartridge;      /*!< Mapper MBC cartridge context */
+        void *context;                          /*!< Mapper MBC context */
+        dmgl_error_e status;                    /*!< Mapper MBC status */
+        uint16_t address;                       /*!< Mapper MBC address */
+        uint8_t value;                          /*!< Mapper MBC value */
+        bool initialized;                       /*!< Mapper MBC initialized flag */
+        bool reset;                             /*!< Mapper MBC reset flag */
+    } mbc;                                      /*!< Mapper MBC */
 } dmgl_test_mapper_t;
 
-static dmgl_test_mapper_t g_test_mapper = {};
+static dmgl_test_mapper_t g_test_mapper = {};   /*!< Mapper test context */
 
 #ifdef __cplusplus
 extern "C" {
@@ -158,11 +167,18 @@ void dmgl_mbc0_write(dmgl_cartridge_t *cartridge, void *context, uint16_t addres
     dmgl_mbc_write(cartridge, context, address, value);
 }
 
+/*!
+ * @brief Initilalize test context.
+ */
 static inline void dmgl_test_initialize(void)
 {
     memset(&g_test_mapper, 0, sizeof(g_test_mapper));
 }
 
+/*!
+ * @brief Test mapper checksum.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_mapper_checksum(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -182,6 +198,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test mapper initialize.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_mapper_initialize(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -237,6 +257,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test mapper read.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_mapper_read(void)
 {
     uint8_t data = 0x00;
@@ -263,6 +287,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test mapper reset.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_mapper_reset(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -283,6 +311,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test mapper title.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_mapper_title(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -302,6 +334,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test mapper uninitialize.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_mapper_uninitialize(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -328,6 +364,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test mapper write.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_mapper_write(void)
 {
     uint8_t data = 0x00;

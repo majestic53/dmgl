@@ -19,9 +19,14 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file version.c
+ * @brief Common version.
+ */
+
 #include <common.h>
 
-static const dmgl_version_t g_version = { .major = DMGL_MAJOR, .minor = DMGL_MINOR, .patch = DMGL_PATCH };
+static const dmgl_version_t g_version = { .major = DMGL_MAJOR, .minor = DMGL_MINOR, .patch = DMGL_PATCH };  /*!< Version context */
 
 #ifdef __cplusplus
 extern "C" {

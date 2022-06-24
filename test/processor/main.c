@@ -19,21 +19,30 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file main.c
+ * @brief Processor subsystem test application.
+ */
+
 #include <bus.h>
 #include <processor.h>
 #include <test.h>
 
+/*!
+ * @struct dmgl_test_processor_t
+ * @brief Processor test context.
+ */
 typedef struct {
-    dmgl_processor_t processor;
-    dmgl_processor_t expected;
+    dmgl_processor_t processor;                     /*!< Processor current context */
+    dmgl_processor_t expected;                      /*!< Processor expected context */
 
     struct {
-        uint16_t address;
-        uint8_t value[0x10000];
-    } bus;
+        uint16_t address;                           /*!< Processor bus address */
+        uint8_t value[0x10000];                     /*!< Processor bus value */
+    } bus;                                          /*!< Processor bus */
 } dmgl_test_processor_t;
 
-static dmgl_test_processor_t g_test_processor = {};
+static dmgl_test_processor_t g_test_processor = {}; /*!< Processor test context */
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,11 +61,18 @@ void dmgl_bus_write(uint16_t address, uint8_t value)
     g_test_processor.bus.value[address] = value;
 }
 
+/*!
+ * @brief Initilalize test context.
+ */
 static inline void dmgl_test_initialize(void)
 {
     memset(&g_test_processor, 0, sizeof(g_test_processor));
 }
 
+/*!
+ * @brief Test current processor state maches expected state.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static inline dmgl_error_e dmgl_test_match(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -280,6 +296,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test processor clock.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_processor_clock(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -314,6 +334,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test processor initialize.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_processor_initialize(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -373,6 +397,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test processor CCF instruction.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_processor_instruction_ccf(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -387,6 +415,10 @@ static dmgl_error_e dmgl_test_processor_instruction_ccf(void)
     return result;
 }
 
+/*!
+ * @brief Test processor CPL instruction.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_processor_instruction_cpl(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -401,6 +433,10 @@ static dmgl_error_e dmgl_test_processor_instruction_cpl(void)
     return result;
 }
 
+/*!
+ * @brief Test processor DI instruction.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_processor_instruction_di(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -415,6 +451,10 @@ static dmgl_error_e dmgl_test_processor_instruction_di(void)
     return result;
 }
 
+/*!
+ * @brief Test processor EI instruction.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_processor_instruction_ei(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -429,6 +469,10 @@ static dmgl_error_e dmgl_test_processor_instruction_ei(void)
     return result;
 }
 
+/*!
+ * @brief Test processor HALT instruction.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_processor_instruction_halt(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -443,6 +487,10 @@ static dmgl_error_e dmgl_test_processor_instruction_halt(void)
     return result;
 }
 
+/*!
+ * @brief Test processor NOP instruction.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_processor_instruction_nop(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -457,6 +505,10 @@ static dmgl_error_e dmgl_test_processor_instruction_nop(void)
     return result;
 }
 
+/*!
+ * @brief Test processor POP instruction.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_processor_instruction_pop(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -471,6 +523,10 @@ static dmgl_error_e dmgl_test_processor_instruction_pop(void)
     return result;
 }
 
+/*!
+ * @brief Test processor PUSH instruction.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_processor_instruction_push(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -485,6 +541,10 @@ static dmgl_error_e dmgl_test_processor_instruction_push(void)
     return result;
 }
 
+/*!
+ * @brief Test processor SCF instruction.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_processor_instruction_scf(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -499,6 +559,10 @@ static dmgl_error_e dmgl_test_processor_instruction_scf(void)
     return result;
 }
 
+/*!
+ * @brief Test processor STOP instruction.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_processor_instruction_stop(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -513,6 +577,10 @@ static dmgl_error_e dmgl_test_processor_instruction_stop(void)
     return result;
 }
 
+/*!
+ * @brief Test processor interrupt.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_processor_interrupt(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -600,6 +668,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test processor read.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_processor_read(void)
 {
     uint8_t data = 0x00;
@@ -641,6 +713,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test processor reset.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_processor_reset(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -702,6 +778,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test processor uninitialize.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_processor_uninitialize(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -720,6 +800,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test processor write.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_processor_write(void)
 {
     uint8_t data = 0x00;

@@ -19,11 +19,21 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file error.h
+ * @brief Common error.
+ */
+
 #ifndef DMGL_ERROR_H_
 #define DMGL_ERROR_H_
 
 #include <define.h>
 
+/*!
+ * @brief Set error macro.
+ * @param[in] _FORMAT_ Error string format, followed by some number of arguments
+ * @return DMGL_FAILURE
+ */
 #define DMGL_ERROR(_FORMAT_, ...) \
     dmgl_error_set(__FILE__, __FUNCTION__, __LINE__, _FORMAT_, ##__VA_ARGS__)
 
@@ -31,6 +41,14 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/*!
+ * @brief Set error.
+ * @param[in] file Constant pointer to file string
+ * @param[in] function Constant pointer to function string
+ * @param[in] line File line
+ * @param[in] format Error string format, followed by some number of arguments
+ * @return DMGL_FAILURE
+ */
 dmgl_error_e dmgl_error_set(const char *file, const char *function, size_t line, const char *format, ...);
 
 #ifdef __cplusplus

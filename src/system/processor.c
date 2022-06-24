@@ -19,6 +19,11 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file processor.c
+ * @brief Processor subsystem.
+ */
+
 #include <bus.h>
 #include <processor.h>
 
@@ -26,23 +31,48 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/*!
+ * @brief Processor instruction callback.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
 typedef bool (*dmgl_processor_instruction_cb)(dmgl_processor_t *processor);
 
+/*!
+ * @brief Fetch processor byte at PC and increment PC.
+ * @param[in,out] processor Pointer to processor context
+ * @return Byte value
+ */
 static uint8_t dmgl_processor_fetch(dmgl_processor_t *processor)
 {
     return dmgl_bus_read(processor->bank.pc.word++);
 }
 
+/*!
+ * @brief Pop processor byte from SP and increment SP.
+ * @param[in,out] processor Pointer to processor context
+ * @return Byte value
+ */
 static uint8_t dmgl_processor_pop(dmgl_processor_t *processor)
 {
     return dmgl_bus_read(processor->bank.sp.word++);
 }
 
+/*!
+ * @brief Decrement processor SP and Push byte to SP.
+ * @param[in,out] processor Pointer to processor context
+ * @param[in] value Byte value
+ */
 static void dmgl_processor_push(dmgl_processor_t *processor, uint8_t value)
 {
     dmgl_bus_write(--processor->bank.sp.word, value);
 }
 
+/*!
+ * @brief Execute processor CCF instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
 static bool dmgl_processor_instruction_ccf(dmgl_processor_t *processor)
 {
     bool result = true;
@@ -61,6 +91,11 @@ static bool dmgl_processor_instruction_ccf(dmgl_processor_t *processor)
     return result;
 }
 
+/*!
+ * @brief Execute processor CPL instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
 static bool dmgl_processor_instruction_cpl(dmgl_processor_t *processor)
 {
     bool result = true;
@@ -79,6 +114,11 @@ static bool dmgl_processor_instruction_cpl(dmgl_processor_t *processor)
     return result;
 }
 
+/*!
+ * @brief Execute processor DI instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
 static bool dmgl_processor_instruction_di(dmgl_processor_t *processor)
 {
     bool result = true;
@@ -96,6 +136,11 @@ static bool dmgl_processor_instruction_di(dmgl_processor_t *processor)
     return result;
 }
 
+/*!
+ * @brief Execute processor EI instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
 static bool dmgl_processor_instruction_ei(dmgl_processor_t *processor)
 {
     bool result = true;
@@ -112,6 +157,11 @@ static bool dmgl_processor_instruction_ei(dmgl_processor_t *processor)
     return result;
 }
 
+/*!
+ * @brief Execute processor HALT instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
 static bool dmgl_processor_instruction_halt(dmgl_processor_t *processor)
 {
     bool result = true;
@@ -129,6 +179,11 @@ static bool dmgl_processor_instruction_halt(dmgl_processor_t *processor)
     return result;
 }
 
+/*!
+ * @brief Execute processor NOP instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
 static bool dmgl_processor_instruction_nop(dmgl_processor_t *processor)
 {
     bool result = true;
@@ -144,6 +199,11 @@ static bool dmgl_processor_instruction_nop(dmgl_processor_t *processor)
     return result;
 }
 
+/*!
+ * @brief Execute processor POP instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
 static bool dmgl_processor_instruction_pop(dmgl_processor_t *processor)
 {
     bool result = true;
@@ -179,6 +239,11 @@ static bool dmgl_processor_instruction_pop(dmgl_processor_t *processor)
     return result;
 }
 
+/*!
+ * @brief Execute processor PUSH instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
 static bool dmgl_processor_instruction_push(dmgl_processor_t *processor)
 {
     bool result = true;
@@ -216,6 +281,11 @@ static bool dmgl_processor_instruction_push(dmgl_processor_t *processor)
     return result;
 }
 
+/*!
+ * @brief Execute processor RLC instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
 static bool dmgl_processor_instruction_rlc(dmgl_processor_t *processor)
 {
     bool result = true;
@@ -231,6 +301,11 @@ static bool dmgl_processor_instruction_rlc(dmgl_processor_t *processor)
     return result;
 }
 
+/*!
+ * @brief Execute processor SCF instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
 static bool dmgl_processor_instruction_scf(dmgl_processor_t *processor)
 {
     bool result = true;
@@ -249,6 +324,11 @@ static bool dmgl_processor_instruction_scf(dmgl_processor_t *processor)
     return result;
 }
 
+/*!
+ * @brief Execute processor STOP instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
 static bool dmgl_processor_instruction_stop(dmgl_processor_t *processor)
 {
     bool result = true;
@@ -268,6 +348,11 @@ static bool dmgl_processor_instruction_stop(dmgl_processor_t *processor)
     return result;
 }
 
+/*!
+ * @brief Execute processor instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_processor_instruction(dmgl_processor_t *processor)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -516,6 +601,10 @@ static dmgl_error_e dmgl_processor_instruction(dmgl_processor_t *processor)
     return result;
 }
 
+/*!
+ * @brief Service processor interrupt.
+ * @param[in,out] processor Pointer to processor context
+ */
 static void dmgl_processor_interrupt(dmgl_processor_t *processor)
 {
 

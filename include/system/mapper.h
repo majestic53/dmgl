@@ -19,41 +19,91 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file mapper.h
+ * @brief Mapper subsystem.
+ */
+
 #ifndef DMGL_MAPPER_H_
 #define DMGL_MAPPER_H_
 
 #include <cartridge.h>
 
+/*!
+ * @struct dmgl_mapper_handler_t
+ * @brief Mapper subsystem handlers.
+ */
 typedef struct {
-    dmgl_error_e (*initialize)(const dmgl_cartridge_t *, void **);
-    uint8_t (*read)(const dmgl_cartridge_t *, void *, uint16_t);
-    void (*reset)(void *);
-    void (*uninitialize)(void *);
-    void (*write)(dmgl_cartridge_t *, void *, uint16_t, uint8_t);
+    dmgl_error_e (*initialize)(const dmgl_cartridge_t *, void **);  /*!< Mapper initialize handler */
+    uint8_t (*read)(const dmgl_cartridge_t *, void *, uint16_t);    /*!< Mapper read handler */
+    void (*reset)(void *);                                          /*!< Mapper reset handler */
+    void (*uninitialize)(void *);                                   /*!< Mapper uninitialize handler */
+    void (*write)(dmgl_cartridge_t *, void *, uint16_t, uint8_t);   /*!< Mapper write handler */
 } dmgl_mapper_handler_t;
 
+/*!
+ * @struct dmgl_mapper_t
+ * @brief Mapper subsystem context.
+ */
 typedef struct {
-    dmgl_cartridge_t cartridge;
-    dmgl_mapper_handler_t handler;
-    void *context;
+    dmgl_cartridge_t cartridge;                                     /*!< Cartridge subsystem context */
+    dmgl_mapper_handler_t handler;                                  /*!< Mapper handlers */
+    void *context;                                                  /*!< Mapper context */
 } dmgl_mapper_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
+/*!
+ * @brief Query mapper checksum.
+ * @param[in] mapper Constant pointer to mapper subsystem context
+ * @return Mapper checksum value
+ */
 uint8_t dmgl_mapper_checksum(const dmgl_mapper_t *mapper);
 
+/*!
+ * @brief Initialize mapper subsystem.
+ * @param[in,out] mapper Pointer to mapper subsystem context
+ * @param[in] data Pointer to mapper data
+ * @param[in] length Mapper data length, in bytes
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 dmgl_error_e dmgl_mapper_initialize(dmgl_mapper_t *mapper, const uint8_t *data, size_t length);
 
+/*!
+ * @brief Read byte from mapper subsystem.
+ * @param[in] mapper Constant pointer to mapper subsystem context
+ * @param[in] address Byte address
+ * @return Byte value
+ */
 uint8_t dmgl_mapper_read(const dmgl_mapper_t *mapper, uint16_t address);
 
+/*!
+ * @brief Reset mapper subsystem.
+ * @param[in,out] mapper Pointer to mapper subsystem context
+ */
 void dmgl_mapper_reset(dmgl_mapper_t *mapper);
 
+/*!
+ * @brief Query mapper title string.
+ * @param[in] mapper Constant pointer to mapper subsystem context
+ * @return Constant pointer to mapper title string
+ */
 const char *dmgl_mapper_title(const dmgl_mapper_t *mapper);
 
+/*!
+ * @brief Uninitialize mapper subsystem.
+ * @param[in,out] mapper Pointer to mapper subsystem context
+ */
 void dmgl_mapper_uninitialize(dmgl_mapper_t *mapper);
 
+/*!
+ * @brief Write byte to mapper subsystem.
+ * @param[in,out] mapper Pointer to mapper subsystem context
+ * @param[in] address Byte address
+ * @param[in] value Byte value
+ */
 void dmgl_mapper_write(dmgl_mapper_t *mapper, uint16_t address, uint8_t value);
 
 #ifdef __cplusplus

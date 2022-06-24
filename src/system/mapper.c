@@ -19,6 +19,11 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file mapper.c
+ * @brief Mapper subsystem.
+ */
+
 #include <mbc0.h>
 
 #ifdef __cplusplus

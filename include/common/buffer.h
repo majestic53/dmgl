@@ -19,6 +19,11 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file buffer.h
+ * @brief Common buffer.
+ */
+
 #ifndef DMGL_BUFFER_H_
 #define DMGL_BUFFER_H_
 
@@ -28,8 +33,17 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/*!
+ * @brief Dynamically allocate buffer.
+ * @param[in] length Length of buffer, in bytes
+ * @return Pointer to buffer on success, NULL otherwise
+ */
 void *dmgl_buffer_allocate(size_t length);
 
+/*!
+ * @brief Free allocated buffer.
+ * @param[in] buffer Pointer to buffer
+ */
 void dmgl_buffer_free(void *buffer);
 
 #ifdef __cplusplus

@@ -19,6 +19,11 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file main.c
+ * @brief Main application.
+ */
+
 #include <getopt.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -39,6 +44,14 @@ static const struct option OPTION[] = {
 extern "C" {
 #endif /* __cplusplus */
 
+/*!
+ * @brief Read file at path.
+ * @param[in] base Constant pointer to base path
+ * @param[in] path Constant pointer to file path
+ * @param[out] data Pointer to data pointer
+ * @param[out] length Pointer to data length, in bytes
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e read_file(const char *base, const char *path, uint8_t **data, size_t *length)
 {
     int file_length;
@@ -83,6 +96,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Show help information.
+ * @param[in] base Constant pointer to base path
+ */
 static void show_help(const char *base)
 {
     size_t flag = 0;
@@ -107,6 +124,9 @@ static void show_help(const char *base)
     }
 }
 
+/*!
+ * @brief Show version information.
+ */
 static void show_version(void)
 {
     const dmgl_version_t *version = dmgl_version();

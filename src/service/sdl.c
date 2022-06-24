@@ -19,29 +19,41 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file sdl.c
+ * @brief SDL service interface.
+ */
+
 #include <common.h>
 
 #include <SDL2/SDL.h>
 #include <bus.h>
 #include <service.h>
 
+/*!
+ * @struct dmgl_sdl_t
+ * @brief SDL context.
+ */
 typedef struct {
-    uint32_t tick;
-    uint32_t pixel[160 * 144];
-    SDL_Window *window;
-    SDL_Renderer *renderer;
-    SDL_Texture *texture;
-    SDL_Cursor *cursor;
-    SDL_GameController *controller;
-    SDL_JoystickID joystick;
+    uint32_t tick;                  /*!< SDL tick counter */
+    uint32_t pixel[160 * 144];      /*!< SDL pixel buffer */
+    SDL_Window *window;             /*!< SDL window handle */
+    SDL_Renderer *renderer;         /*!< SDL renderer handle */
+    SDL_Texture *texture;           /*!< SDL texture handle */
+    SDL_Cursor *cursor;             /*!< SDL cursor handle */
+    SDL_GameController *controller; /*!< SDL controller handle */
+    SDL_JoystickID joystick;        /*!< SDL joystick ID */
 } dmgl_sdl_t;
 
-static dmgl_sdl_t g_sdl = {};
+static dmgl_sdl_t g_sdl = {};       /*!< SDL context */
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
+/*!
+ * @brief Clear service pixel buffer.
+ */
 static void dmgl_service_clear(void)
 {
 
@@ -56,21 +68,22 @@ static void dmgl_service_clear(void)
 bool dmgl_service_button(dmgl_button_e button)
 {
     bool result = false;
-    const int keys[] = {
-        SDL_SCANCODE_L, SDL_SCANCODE_K, SDL_SCANCODE_C, SDL_SCANCODE_SPACE,
-        SDL_SCANCODE_D, SDL_SCANCODE_A, SDL_SCANCODE_W, SDL_SCANCODE_S,
-        };
 
     if(g_sdl.controller) {
-        const SDL_GameControllerButton KEY[] = {
+        const SDL_GameControllerButton keys[] = {
             SDL_CONTROLLER_BUTTON_A, SDL_CONTROLLER_BUTTON_B, SDL_CONTROLLER_BUTTON_BACK, SDL_CONTROLLER_BUTTON_START,
             SDL_CONTROLLER_BUTTON_DPAD_RIGHT, SDL_CONTROLLER_BUTTON_DPAD_LEFT, SDL_CONTROLLER_BUTTON_DPAD_UP, SDL_CONTROLLER_BUTTON_DPAD_DOWN,
             };
 
-        result = SDL_GameControllerGetButton(g_sdl.controller, KEY[button]) ? true : false;
+        result = SDL_GameControllerGetButton(g_sdl.controller, keys[button]) ? true : false;
     }
 
     if(!result) {
+        const int keys[] = {
+            SDL_SCANCODE_L, SDL_SCANCODE_K, SDL_SCANCODE_C, SDL_SCANCODE_SPACE,
+            SDL_SCANCODE_D, SDL_SCANCODE_A, SDL_SCANCODE_W, SDL_SCANCODE_S,
+            };
+
         result = SDL_GetKeyboardState(NULL)[keys[button]] ? true : false;
     }
 

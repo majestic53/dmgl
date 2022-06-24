@@ -19,39 +19,48 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file main.c
+ * @brief Memory subsystem test application.
+ */
+
 #include <memory.h>
 #include <test.h>
 
+/*!
+ * @struct dmgl_test_memory_t
+ * @brief Memory test context.
+ */
 typedef struct {
-    dmgl_memory_t memory;
+    dmgl_memory_t memory;                       /*!< Memory context */
 
     struct {
-        const dmgl_bootloader_t *bootloader;
-        const uint8_t *data;
-        size_t length;
-        uint16_t address;
-        uint8_t value;
-        bool enabled;
-        bool initialized;
-        bool reset;
-        dmgl_error_e status;
-    } bootloader;
+        const dmgl_bootloader_t *bootloader;    /*!< Memory bootloader context */
+        const uint8_t *data;                    /*!< Memory bootloader data */
+        size_t length;                          /*!< Memory bootloader length */
+        uint16_t address;                       /*!< Memory bootloader address */
+        uint8_t value;                          /*!< Memory bootloader value */
+        bool enabled;                           /*!< Memory bootloader enabled flag */
+        bool initialized;                       /*!< Memory bootloader initialized flag */
+        bool reset;                             /*!< Memory bootloader reset flag */
+        dmgl_error_e status;                    /*!< Memory bootloader status */
+    } bootloader;                               /*!< Memory bootloader */
 
     struct {
-        const dmgl_mapper_t *mapper;
-        const uint8_t *data;
-        size_t length;
-        uint16_t address;
-        uint8_t value;
-        uint8_t checksum;
-        bool initialized;
-        bool reset;
-        const char *title;
-        dmgl_error_e status;
-    } mapper;
+        const dmgl_mapper_t *mapper;            /*!< Memory mapper context */
+        const uint8_t *data;                    /*!< Memory mapper data */
+        size_t length;                          /*!< Memory mapper length */
+        uint16_t address;                       /*!< Memory mapper address */
+        uint8_t value;                          /*!< Memory mapper value */
+        uint8_t checksum;                       /*!< Memory mapper checksum */
+        bool initialized;                       /*!< Memory mapper initialized flag */
+        bool reset;                             /*!< Memory mapper reset flag */
+        const char *title;                      /*!< Memory mapper title string */
+        dmgl_error_e status;                    /*!< Memory mapper status */
+    } mapper;                                   /*!< Memory mapper */
 } dmgl_test_memory_t;
 
-static dmgl_test_memory_t g_test_memory = {};
+static dmgl_test_memory_t g_test_memory = {};   /*!< Memory test context */
 
 #ifdef __cplusplus
 extern "C" {
@@ -149,11 +158,18 @@ void dmgl_mapper_write(dmgl_mapper_t *mapper, uint16_t address, uint8_t value)
     g_test_memory.mapper.value = value;
 }
 
+/*!
+ * @brief Initilalize test context.
+ */
 static inline void dmgl_test_initialize(void)
 {
     memset(&g_test_memory, 0, sizeof(g_test_memory));
 }
 
+/*!
+ * @brief Test memory checksum.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_memory_checksum(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -173,6 +189,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test memory has bootloader.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_memory_has_bootloader(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -200,6 +220,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test memory initialize.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_memory_initialize(void)
 {
     dmgl_t context = {};
@@ -246,6 +270,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test memory read.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_memory_read(void)
 {
     uint8_t data = 0x00;
@@ -335,6 +363,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test memory reset.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_memory_reset(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -354,6 +386,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test memory title.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_memory_title(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -373,6 +409,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test memory uninitialize.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_memory_uninitialize(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -396,6 +436,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test memory write.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_memory_write(void)
 {
     uint8_t data = 0x00;

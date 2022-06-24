@@ -19,6 +19,11 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file checksum.c
+ * @brief Common checksum.
+ */
+
 #include <common.h>
 
 #ifdef __cplusplus

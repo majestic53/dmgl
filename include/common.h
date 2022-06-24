@@ -19,6 +19,11 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file common.h
+ * @brief Common includes.
+ */
+
 #ifndef DMGL_COMMON_H_
 #define DMGL_COMMON_H_
 

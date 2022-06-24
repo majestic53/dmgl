@@ -19,6 +19,11 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file checksum.h
+ * @brief Common checksum.
+ */
+
 #ifndef DMGL_CHECKSUM_H_
 #define DMGL_CHECKSUM_H_
 
@@ -28,6 +33,13 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/*!
+ * @brief Calculate checksum over data.
+ * @param[in] data Constant pointer to data
+ * @param[in] begin Begin byte index
+ * @param[in] end End byte index
+ * @return Checksum value
+ */
 uint8_t dmgl_checksum(const void *data, size_t begin, size_t end);
 
 #ifdef __cplusplus

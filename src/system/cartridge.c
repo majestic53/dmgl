@@ -19,23 +19,29 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file cartridge.c
+ * @brief Cartridge subsystem.
+ */
+
 #include <cartridge.h>
 
-static const size_t RAM_COUNT[] = { 1, 1, 1, 4, 16, 8, };
+static const size_t RAM_COUNT[] = { 1, 1, 1, 4, 16, 8, };                   /*!< Supported cartridge RAM count */
 
-static const size_t ROM_COUNT[] = { 2, 4, 8, 16, 32, 64, 128, 256, 512, };
+static const size_t ROM_COUNT[] = { 2, 4, 8, 16, 32, 64, 128, 256, 512, };  /*!< Supported cartridge ROM count */
 
-static const uint8_t TYPE[] = { 0, };
+static const uint8_t TYPE[] = { 0, };                                       /*!< Supported cartridge types */
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-uint8_t dmgl_cartridge_checksum(const dmgl_cartridge_t *cartridge)
-{
-    return ((const dmgl_cartridge_header_t *)&cartridge->rom.bank[0][0x0100])->checksum;
-}
-
+/*!
+ * @brief Validate cartridge data.
+ * @param[in] data Constant pointer to cartridge data
+ * @param[in] length Cartridge data length, in bytes
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_cartridge_validate(const uint8_t *data, size_t length)
 {
     uint8_t checksum;
@@ -89,6 +95,11 @@ static dmgl_error_e dmgl_cartridge_validate(const uint8_t *data, size_t length)
 
 exit:
     return result;
+}
+
+uint8_t dmgl_cartridge_checksum(const dmgl_cartridge_t *cartridge)
+{
+    return ((const dmgl_cartridge_header_t *)&cartridge->rom.bank[0][0x0100])->checksum;
 }
 
 dmgl_error_e dmgl_cartridge_initialize(dmgl_cartridge_t *cartridge, const uint8_t *data, size_t length)

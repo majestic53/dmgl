@@ -19,40 +19,49 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file main.c
+ * @brief Bus test application.
+ */
+
 #include <bus.h>
 #include <memory.h>
 #include <processor.h>
 #include <test.h>
 
+/*!
+ * @struct dmgl_test_bus_t
+ * @brief Bus test context.
+ */
 typedef struct {
 
     struct {
-        const dmgl_memory_t *memory;
-        const dmgl_t *context;
-        const char *title;
-        dmgl_error_e status;
-        uint16_t address;
-        uint8_t value;
-        bool has_bootloader;
-        uint8_t checksum;
-        bool initialized;
-        bool reset;
-    } memory;
+        const dmgl_memory_t *memory;        /*!< Bus memory context */
+        const dmgl_t *context;              /*!< Bus memory DMGL context */
+        const char *title;                  /*!< Bus memory title string */
+        dmgl_error_e status;                /*!< Bus memory status */
+        uint16_t address;                   /*!< Bus memory address */
+        uint8_t value;                      /*!< Bus memory value */
+        bool has_bootloader;                /*!< Bus memory bootloader flag */
+        uint8_t checksum;                   /*!< Bus memory checksum */
+        bool initialized;                   /*!< Bus memory initialized flag */
+        bool reset;                         /*!< Bus memory reset flag */
+    } memory;                               /*!< Bus memory */
 
     struct {
-        const dmgl_processor_t *processor;
-        dmgl_error_e status;
-        uint16_t address;
-        uint8_t value;
-        bool has_bootloader;
-        uint8_t checksum;
-        bool initialized;
-        bool reset;
-        bool clock;
-    } processor;
+        const dmgl_processor_t *processor;  /*!< Bus processor context */
+        dmgl_error_e status;                /*!< Bus processor status */
+        uint16_t address;                   /*!< Bus processor address */
+        uint8_t value;                      /*!< Bus processor value */
+        bool has_bootloader;                /*!< Bus processor bootloader flag */
+        uint8_t checksum;                   /*!< Bus processor checksum */
+        bool initialized;                   /*!< Bus processor initialized flag */
+        bool reset;                         /*!< Bus processor reset flag */
+        bool clock;                         /*!< Bus processor clock flag */
+    } processor;                            /*!< Bus processor */
 } dmgl_test_bus_t;
 
-static dmgl_test_bus_t g_test_bus = {};
+static dmgl_test_bus_t g_test_bus = {};     /*!< Bus test context */
 
 #ifdef __cplusplus
 extern "C" {
@@ -156,11 +165,18 @@ void dmgl_processor_write(dmgl_processor_t *processor, uint16_t address, uint8_t
     g_test_bus.processor.value = value;
 }
 
+/*!
+ * @brief Initilalize test context.
+ */
 static inline void dmgl_test_initialize(void)
 {
     memset(&g_test_bus, 0, sizeof(g_test_bus));
 }
 
+/*!
+ * @brief Test bus clock.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_bus_clock(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -203,6 +219,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test bus initialize.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_bus_initialize(void)
 {
     dmgl_t context = {};
@@ -239,6 +259,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test bus interrupt.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_bus_interrupt(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -265,6 +289,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test bus read.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_bus_read(void)
 {
     uint8_t data = 0x00;
@@ -304,6 +332,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test bus reset.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_bus_reset(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -323,6 +355,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test bus title.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_bus_title(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -341,6 +377,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test bus uninitialize.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_bus_uninitialize(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -364,6 +404,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test bus write.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_bus_write(void)
 {
     uint8_t data = 0x00;

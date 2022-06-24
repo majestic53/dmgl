@@ -19,6 +19,11 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file define.h
+ * @brief Common defines.
+ */
+
 #ifndef DMGL_DEFINE_H_
 #define DMGL_DEFINE_H_
 
@@ -30,8 +35,8 @@
 #include <string.h>
 #include <dmgl.h>
 
-#define DMGL_MAJOR 0
-#define DMGL_MINOR 1
-#define DMGL_PATCH 0x66e2050
+#define DMGL_MAJOR 0            /*!< Major version */
+#define DMGL_MINOR 1            /*!< Minor version */
+#define DMGL_PATCH 0x9e5eecf	/*!< Patch version */
 
 #endif /* DMGL_DEFINE_H_ */

@@ -19,6 +19,11 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file mock.h
+ * @brief Common test mocks.
+ */
+
 #ifndef DMGL_MOCK_H_
 #define DMGL_MOCK_H_
 

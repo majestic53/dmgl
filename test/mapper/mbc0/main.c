@@ -19,29 +19,38 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file main.c
+ * @brief MBC0 mapper subsystem test application.
+ */
+
 #include <mbc0.h>
 #include <test.h>
 
+/*!
+ * @struct dmgl_test_mbc0_t
+ * @brief MBC0 mapper test context.
+ */
 typedef struct {
-    dmgl_cartridge_t cartridge;
-    void *context;
+    dmgl_cartridge_t cartridge;             /*!< MBC0 mapper cartridge context */
+    void *context;                          /*!< MBC0 mapper context */
 
     struct {
-        const dmgl_cartridge_t *cartridge;
-        size_t index;
-        uint16_t address;
-        uint8_t value;
-    } ram;
+        const dmgl_cartridge_t *cartridge;  /*!< MBC0 mapper RAM cartridge context */
+        size_t index;                       /*!< MBC0 mapper RAM bank index */
+        uint16_t address;                   /*!< MBC0 mapper RAM address */
+        uint8_t value;                      /*!< MBC0 mapper RAM value */
+    } ram;                                  /*!< MBC0 mapper RAM */
 
     struct {
-        const dmgl_cartridge_t *cartridge;
-        size_t index;
-        uint16_t address;
-        uint8_t value;
-    } rom;
+        const dmgl_cartridge_t *cartridge;  /*!< MBC0 mapper ROM cartridge context */
+        size_t index;                       /*!< MBC0 mapper ROM bank index */
+        uint16_t address;                   /*!< MBC0 mapper ROM address */
+        uint8_t value;                      /*!< MBC0 mapper ROM value */
+    } rom;                                  /*!< MBC0 mapper ROM */
 } dmgl_test_mbc0_t;
 
-static dmgl_test_mbc0_t g_test_mbc0 = {};
+static dmgl_test_mbc0_t g_test_mbc0 = {};   /*!< MBC0 mapper test context */
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,11 +82,18 @@ uint8_t dmgl_cartridge_rom_read(const dmgl_cartridge_t *cartridge, size_t index,
     return g_test_mbc0.rom.value;
 }
 
+/*!
+ * @brief Initilalize test context.
+ */
 static inline void dmgl_test_initialize(void)
 {
     memset(&g_test_mbc0, 0, sizeof(g_test_mbc0));
 }
 
+/*!
+ * @brief Test MBC0 mapper initialize.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_mbc0_initialize(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -97,6 +113,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test MBC0 mapper read.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_mbc0_read(void)
 {
     uint8_t data = 0x00;
@@ -191,6 +211,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test MBC0 mapper reset.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_mbc0_reset(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -209,6 +233,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test MBC0 mapper uninitialize.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_mbc0_uninitialize(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -227,6 +255,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test MBC0 mapper write.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_mbc0_write(void)
 {
     uint8_t data = 0x00;

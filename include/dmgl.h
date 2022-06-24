@@ -19,47 +19,77 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file dmgl.h
+ * @brief DMGL interface.
+ */
+
 #ifndef DMGL_H_
 #define DMGL_H_
 
+/*!
+ * @enum dmgl_error_e
+ * @brief DMGL error types.
+ */
 typedef enum {
-    DMGL_FAILURE = -1,
-    DMGL_SUCCESS,
-    DMGL_COMPLETE,
-    DMGL_MAX,
+    DMGL_FAILURE = -1,  /*!< Failure, query dmgl_error for details */
+    DMGL_SUCCESS,       /*!< Success */
+    DMGL_COMPLETE,      /*!< Internal type */
+    DMGL_MAX,           /*!< Max error type */
 } dmgl_error_e;
 
+/*!
+ * @struct dmgl_t
+ * @brief DMGL context.
+ */
 typedef struct {
 
     struct {
-        void *data;
-        int length;
-    } bootloader;
+        void *data;     /*!< Bootloader data */
+        int length;     /*!< Bootloader data length, in bytes */
+    } bootloader;       /*!< Bootloader context */
 
     struct {
-        void *data;
-        int length;
-    } cartridge;
+        void *data;     /*!< Cartridge data */
+        int length;     /*!< Cartridge data length, in bytes */
+    } cartridge;        /*!< Cartridge context */
 
     struct {
-        int scale;
-    } window;
+        int scale;      /*!< Window scale [1x-8x] */
+    } window;           /*!< Window context */
 } dmgl_t;
 
+/*!
+ * @struct dmgl_version_t
+ * @brief DMGL version context.
+ */
 typedef struct {
-    int major;
-    int minor;
-    int patch;
+    int major;          /*!< Major version */
+    int minor;          /*!< Minor version */
+    int patch;          /*!< Patch version */
 } dmgl_version_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
+/*!
+ * @brief Run DMGL with context.
+ * @param[in] context Constant pointer to DMGL context
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 dmgl_error_e dmgl(const dmgl_t *context);
 
+/*!
+ * @brief Query DMGL error string.
+ * @return Constant pointer to DMGL error string
+ */
 const char *dmgl_error(void);
 
+/*!
+ * @brief Query DMGL version.
+ * @return Constant pointer to DMGL version
+ */
 const dmgl_version_t *dmgl_version(void);
 
 #ifdef __cplusplus

@@ -19,35 +19,44 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file main.c
+ * @brief Cartridge test application.
+ */
+
 #include <cartridge.h>
 #include <test.h>
 
+/*!
+ * @struct dmgl_test_cartridge_t
+ * @brief Cartridge test context.
+ */
 typedef struct {
-    dmgl_cartridge_t cartridge;
-    dmgl_cartridge_header_t *header;
+    dmgl_cartridge_t cartridge;                     /*!< Cartridge context */
+    dmgl_cartridge_header_t *header;                /*!< Cartridge header */
 
     struct {
-        const void *data;
-        uint8_t value;
-        size_t begin;
-        size_t end;
-    } checksum;
+        const void *data;                           /*!< Cartridge checksum data */
+        uint8_t value;                              /*!< Cartridge checksum value */
+        size_t begin;                               /*!< Cartridge checksum begin index */
+        size_t end;                                 /*!< Cartridge checksum end index */
+    } checksum;                                     /*!< Cartridge checksum */
 
     struct {
-        uint8_t *bank[2];
-        uint8_t data[8 * 1024];
-        bool allocate_bank;
-        bool allocate_data;
-    } ram;
+        uint8_t *bank[2];                           /*!< Cartridge RAM bank */
+        uint8_t data[8 * 1024];                     /*!< Cartridge RAM data */
+        bool allocate_bank;                         /*!< Cartridge RAM allocate bank flag */
+        bool allocate_data;                         /*!< Cartridge RAM allocate data flag */
+    } ram;                                          /*!< Cartridge RAM */
 
     struct {
-        const uint8_t *bank[2];
-        uint8_t data[16 * 1024];
-        bool allocate_bank;
-    } rom;
+        const uint8_t *bank[2];                     /*!< Cartridge ROM bank */
+        uint8_t data[16 * 1024];                    /*!< Cartridge ROM data */
+        bool allocate_bank;                         /*!< Cartridge ROM allocate bank flag */
+    } rom;                                          /*!< Cartridge ROM */
 } dmgl_test_cartridge_t;
 
-static dmgl_test_cartridge_t g_test_cartridge = {};
+static dmgl_test_cartridge_t g_test_cartridge = {}; /*!< Cartridge test context */
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,6 +97,9 @@ void dmgl_buffer_free(void *buffer)
     return;
 }
 
+/*!
+ * @brief Initilalize test context.
+ */
 static inline void dmgl_test_initialize(void)
 {
     memset(&g_test_cartridge, 0, sizeof(g_test_cartridge));
@@ -104,6 +116,10 @@ static inline void dmgl_test_initialize(void)
     g_test_cartridge.header = (dmgl_cartridge_header_t *)&g_test_cartridge.rom.data[0x0100];
 }
 
+/*!
+ * @brief Test cartridge checksum.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_cartridge_checksum(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -122,6 +138,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test cartridge initialize.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_cartridge_initialize(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -239,6 +259,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test cartridge RAM count.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_cartridge_ram_count(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -256,6 +280,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test cartridge RAM read.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_cartridge_ram_read(void)
 {
     uint8_t data = 0x00;
@@ -280,6 +308,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test cartridge RAM write.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_cartridge_ram_write(void)
 {
     uint8_t data = 0x00;
@@ -304,6 +336,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test cartridge reset.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_cartridge_reset(void)
 {
     uint8_t data = 0x00;
@@ -337,6 +373,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test cartridge ROM count.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_cartridge_rom_count(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -354,6 +394,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test cartridge ROM read.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_cartridge_rom_read(void)
 {
     uint8_t data = 0x00;
@@ -378,6 +422,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test cartridge title.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_cartridge_title(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -396,6 +444,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test cartridge type.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_cartridge_type(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
@@ -416,6 +468,10 @@ exit:
     return result;
 }
 
+/*!
+ * @brief Test cartridge uninitialize.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_test_cartridge_uninitialize(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;

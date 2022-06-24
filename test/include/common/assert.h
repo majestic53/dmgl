@@ -19,9 +19,19 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file assert.h
+ * @brief Common test assert.
+ */
+
 #ifndef DMGL_ASSERT_H_
 #define DMGL_ASSERT_H_
 
+/*!
+ * @brief Assert on conditional macro.
+ * @param[in] _CONDITION_ Constant pointer to conditional string
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 #define DMGL_ASSERT(_CONDITION_) \
     (_CONDITION_) ? DMGL_SUCCESS : dmgl_assert(# _CONDITION_, __FILE__, __FUNCTION__, __LINE__)
 
@@ -29,6 +39,14 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/*!
+ * @brief Assert on conditional.
+ * @param[in] condition Constant pointer to conditional string
+ * @param[in] file Constant pointer to file string
+ * @param[in] function Constant pointer to function string
+ * @param[in] line File line
+ * @return DMGL_FAILURE
+ */
 dmgl_error_e dmgl_assert(const char *condition, const char *file, const char *function, size_t line)
 {
     fprintf(stderr, "Assert failed -- %s (%s:%s@%zu)\n", condition, function, file, line);

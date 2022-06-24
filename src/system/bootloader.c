@@ -19,12 +19,23 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file bootloader.c
+ * @brief Bootloader subsystem.
+ */
+
 #include <bootloader.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
+/*!
+ * @brief Validate bootloader data.
+ * @param[in] data Constant pointer to bootloader data
+ * @param[in] length Bootloader data length, in bytes
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 static dmgl_error_e dmgl_bootloader_validate(const uint8_t *data, size_t length)
 {
     uint8_t checksum;

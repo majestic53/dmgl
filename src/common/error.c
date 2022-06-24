@@ -19,13 +19,22 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file error.c
+ * @brief Common error.
+ */
+
 #include <common.h>
 
+/*!
+ * @struct dmgl_error_t
+ * @brief Error context.
+ */
 typedef struct {
-    char message[256];
+    char message[256];              /*!< Error message string */
 } dmgl_error_t;
 
-static dmgl_error_t g_error = {};
+static dmgl_error_t g_error = {};   /*!< Error context */
 
 #ifdef __cplusplus
 extern "C" {

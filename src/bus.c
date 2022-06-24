@@ -19,21 +19,30 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file bus.c
+ * @brief Bus interface.
+ */
+
 #include <bus.h>
 #include <memory.h>
 #include <processor.h>
 
+/*!
+ * @struct dmgl_bus_t
+ * @brief Bus context.
+ */
 typedef struct {
-    dmgl_memory_t memory;
-    dmgl_processor_t processor;
+    dmgl_memory_t memory;       /*!< Memory context */
+    dmgl_processor_t processor; /*!< Processor context */
 
     /* TODO: ADD SUBSYSTEMS */
-    uint32_t cycle;
+    uint32_t cycle;             /*!< Bus cycle counter */
     /* ---- */
 
 } dmgl_bus_t;
 
-static dmgl_bus_t g_bus = {};
+static dmgl_bus_t g_bus = {};   /*!< Error context */
 
 #ifdef __cplusplus
 extern "C" {

@@ -25,7 +25,7 @@ OBJECT_FILES=$(patsubst %.c,%.o,$(shell find ./ -name '*.c'))
 
 INCLUDE_FLAGS=$(subst ../include/,-I../include/,$(shell find ../include/ -maxdepth 2 -type d))
 LIBRARY_FLAGS=-lSDL2
-PATCH_FLAGS="s/DMGL_PATCH .*/DMGL_PATCH 0x$(shell git rev-parse --short HEAD)/g"
+PATCH_FLAGS="s/DMGL_PATCH .*/DMGL_PATCH 0x$(shell git rev-parse --short HEAD)\t\/\*\!\< Patch version \*\//g"
 
 .PHONY: all
 all: build

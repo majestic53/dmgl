@@ -19,18 +19,32 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file test.h
+ * @brief Common test defines.
+ */
+
 #ifndef DMGL_TEST_H_
 #define DMGL_TEST_H_
 
+#include <define.h>
 #include <assert.h>
 #include <mock.h>
 
+/*!
+ * @brief Print test result macro.
+ * @param[in] _RESULT_ DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 #define DMGL_TEST_RESULT(_RESULT_) \
     fprintf(((_RESULT_) != DMGL_SUCCESS) ? stderr : stdout, "[%s%s%s] %s\n", \
         ((_RESULT_) != DMGL_SUCCESS) ? "\x1b[91m" : "\x1b[92m", \
         ((_RESULT_) != DMGL_SUCCESS) ? "FAIL" : "PASS", \
         "\x1b[0m", __FUNCTION__)
 
+/*!
+ * @brief Test callback.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
 typedef dmgl_error_e (*dmgl_test_cb)(void);
 
 #endif /* DMGL_TEST_H_ */

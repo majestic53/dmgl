@@ -19,6 +19,11 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*!
+ * @file dmgl.c
+ * @brief DMGL interface.
+ */
+
 #include <bus.h>
 #include <service.h>
 
@@ -38,7 +43,7 @@ dmgl_error_e dmgl(const dmgl_t *context)
         goto exit;
     }
 
-    while(dmgl_service_poll() == DMGL_SUCCESS) {
+    while((result = dmgl_service_poll()) == DMGL_SUCCESS) {
 
         while((result = dmgl_bus_clock()) != DMGL_COMPLETE) {
 
