@@ -69,6 +69,73 @@ static void dmgl_processor_push(dmgl_processor_t *processor, uint8_t value)
 }
 
 /*!
+ * @brief Execute processor AND instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
+static bool dmgl_processor_instruction_and(dmgl_processor_t *processor)
+{
+    bool result = false;
+
+    switch(processor->instruction.cycle) {
+        case 0:
+
+            switch(processor->instruction.opcode) {
+                case 0xA0: /* B */
+                    processor->instruction.operand.low = processor->bank.bc.high;
+                    break;
+                case 0xA1: /* C */
+                    processor->instruction.operand.low = processor->bank.bc.low;
+                    break;
+                case 0xA2: /* D */
+                    processor->instruction.operand.low = processor->bank.de.high;
+                    break;
+                case 0xA3: /* E */
+                    processor->instruction.operand.low = processor->bank.de.low;
+                    break;
+                case 0xA4: /* H */
+                    processor->instruction.operand.low = processor->bank.hl.high;
+                    break;
+                case 0xA5: /* L */
+                    processor->instruction.operand.low = processor->bank.hl.low;
+                    break;
+                case 0xA7: /* A */
+                    processor->instruction.operand.low = processor->bank.af.high;
+                    break;
+                default:
+                    result = true;
+                    break;
+            }
+            break;
+        case 1:
+
+            switch(processor->instruction.opcode) {
+                case 0xA6: /* (HL) */
+                    processor->instruction.operand.low = dmgl_bus_read(processor->bank.hl.word);
+                    break;
+                case 0xE6: /* N */
+                    processor->instruction.operand.low = dmgl_processor_fetch(processor);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
+    }
+
+    if(!result) {
+        processor->bank.af.high &= processor->instruction.operand.low;
+        processor->bank.af.carry = false;
+        processor->bank.af.half_carry = true;
+        processor->bank.af.subtract = false;
+        processor->bank.af.zero = !processor->bank.af.high;
+    }
+
+    return result;
+}
+
+/*!
  * @brief Execute processor CCF instruction.
  * @param[in,out] processor Pointer to processor context
  * @return true on success, false otherwise
@@ -200,6 +267,73 @@ static bool dmgl_processor_instruction_nop(dmgl_processor_t *processor)
 }
 
 /*!
+ * @brief Execute processor OR instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
+static bool dmgl_processor_instruction_or(dmgl_processor_t *processor)
+{
+    bool result = false;
+
+    switch(processor->instruction.cycle) {
+        case 0:
+
+            switch(processor->instruction.opcode) {
+                case 0xB0: /* B */
+                    processor->instruction.operand.low = processor->bank.bc.high;
+                    break;
+                case 0xB1: /* C */
+                    processor->instruction.operand.low = processor->bank.bc.low;
+                    break;
+                case 0xB2: /* D */
+                    processor->instruction.operand.low = processor->bank.de.high;
+                    break;
+                case 0xB3: /* E */
+                    processor->instruction.operand.low = processor->bank.de.low;
+                    break;
+                case 0xB4: /* H */
+                    processor->instruction.operand.low = processor->bank.hl.high;
+                    break;
+                case 0xB5: /* L */
+                    processor->instruction.operand.low = processor->bank.hl.low;
+                    break;
+                case 0xB7: /* A */
+                    processor->instruction.operand.low = processor->bank.af.high;
+                    break;
+                default:
+                    result = true;
+                    break;
+            }
+            break;
+        case 1:
+
+            switch(processor->instruction.opcode) {
+                case 0xB6: /* (HL) */
+                    processor->instruction.operand.low = dmgl_bus_read(processor->bank.hl.word);
+                    break;
+                case 0xF6: /* N */
+                    processor->instruction.operand.low = dmgl_processor_fetch(processor);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
+    }
+
+    if(!result) {
+        processor->bank.af.high |= processor->instruction.operand.low;
+        processor->bank.af.carry = false;
+        processor->bank.af.half_carry = false;
+        processor->bank.af.subtract = false;
+        processor->bank.af.zero = !processor->bank.af.high;
+    }
+
+    return result;
+}
+
+/*!
  * @brief Execute processor POP instruction.
  * @param[in,out] processor Pointer to processor context
  * @return true on success, false otherwise
@@ -210,16 +344,16 @@ static bool dmgl_processor_instruction_pop(dmgl_processor_t *processor)
     dmgl_processor_register_t *bank = NULL;
 
     switch(processor->instruction.opcode) {
-        case 0xC1:
+        case 0xC1: /* BC */
             bank = &processor->bank.bc;
             break;
-        case 0xD1:
+        case 0xD1: /* DE */
             bank = &processor->bank.de;
             break;
-        case 0xE1:
+        case 0xE1: /* HL */
             bank = &processor->bank.hl;
             break;
-        case 0xF1:
+        case 0xF1: /* AF */
             bank = &processor->bank.af;
             break;
     }
@@ -254,16 +388,16 @@ static bool dmgl_processor_instruction_push(dmgl_processor_t *processor)
     dmgl_processor_register_t *bank = NULL;
 
     switch(processor->instruction.opcode) {
-        case 0xC5:
+        case 0xC5: /* BC */
             bank = &processor->bank.bc;
             break;
-        case 0xD5:
+        case 0xD5: /* DE */
             bank = &processor->bank.de;
             break;
-        case 0xE5:
+        case 0xE5: /* HL */
             bank = &processor->bank.hl;
             break;
-        case 0xF5:
+        case 0xF5: /* AF */
             bank = &processor->bank.af;
             break;
     }
@@ -353,6 +487,73 @@ static bool dmgl_processor_instruction_stop(dmgl_processor_t *processor)
 }
 
 /*!
+ * @brief Execute processor XOR instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
+static bool dmgl_processor_instruction_xor(dmgl_processor_t *processor)
+{
+    bool result = false;
+
+    switch(processor->instruction.cycle) {
+        case 0:
+
+            switch(processor->instruction.opcode) {
+                case 0xA8: /* B */
+                    processor->instruction.operand.low = processor->bank.bc.high;
+                    break;
+                case 0xA9: /* C */
+                    processor->instruction.operand.low = processor->bank.bc.low;
+                    break;
+                case 0xAA: /* D */
+                    processor->instruction.operand.low = processor->bank.de.high;
+                    break;
+                case 0xAB: /* E */
+                    processor->instruction.operand.low = processor->bank.de.low;
+                    break;
+                case 0xAC: /* H */
+                    processor->instruction.operand.low = processor->bank.hl.high;
+                    break;
+                case 0xAD: /* L */
+                    processor->instruction.operand.low = processor->bank.hl.low;
+                    break;
+                case 0xAF: /* A */
+                    processor->instruction.operand.low = processor->bank.af.high;
+                    break;
+                default:
+                    result = true;
+                    break;
+            }
+            break;
+        case 1:
+
+            switch(processor->instruction.opcode) {
+                case 0xAE: /* (HL) */
+                    processor->instruction.operand.low = dmgl_bus_read(processor->bank.hl.word);
+                    break;
+                case 0xEE: /* N */
+                    processor->instruction.operand.low = dmgl_processor_fetch(processor);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
+    }
+
+    if(!result) {
+        processor->bank.af.high ^= processor->instruction.operand.low;
+        processor->bank.af.carry = false;
+        processor->bank.af.half_carry = false;
+        processor->bank.af.subtract = false;
+        processor->bank.af.zero = !processor->bank.af.high;
+    }
+
+    return result;
+}
+
+/*!
  * @brief Execute processor instruction.
  * @param[in,out] processor Pointer to processor context
  * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
@@ -422,14 +623,14 @@ static dmgl_error_e dmgl_processor_instruction(dmgl_processor_t *processor)
             NULL, NULL, NULL, NULL,
             NULL, NULL, NULL, NULL,
             /* A0 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_and, dmgl_processor_instruction_and, dmgl_processor_instruction_and, dmgl_processor_instruction_and,
+            dmgl_processor_instruction_and, dmgl_processor_instruction_and, dmgl_processor_instruction_and, dmgl_processor_instruction_and,
             /* A8 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_xor, dmgl_processor_instruction_xor, dmgl_processor_instruction_xor, dmgl_processor_instruction_xor,
+            dmgl_processor_instruction_xor, dmgl_processor_instruction_xor, dmgl_processor_instruction_xor, dmgl_processor_instruction_xor,
             /* B0 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_or, dmgl_processor_instruction_or, dmgl_processor_instruction_or, dmgl_processor_instruction_or,
+            dmgl_processor_instruction_or, dmgl_processor_instruction_or, dmgl_processor_instruction_or, dmgl_processor_instruction_or,
             /* B8 */
             NULL, NULL, NULL, NULL,
             NULL, NULL, NULL, NULL,
@@ -447,13 +648,13 @@ static dmgl_error_e dmgl_processor_instruction(dmgl_processor_t *processor)
             NULL, NULL, NULL, NULL,
             /* E0 */
             NULL, dmgl_processor_instruction_pop, NULL, NULL,
-            NULL, dmgl_processor_instruction_push, NULL, NULL,
+            NULL, dmgl_processor_instruction_push, dmgl_processor_instruction_and, NULL,
             /* E8 */
             NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            NULL, NULL, dmgl_processor_instruction_xor, NULL,
             /* F0 */
             NULL, dmgl_processor_instruction_pop, NULL, dmgl_processor_instruction_di,
-            NULL, dmgl_processor_instruction_push, NULL, NULL,
+            NULL, dmgl_processor_instruction_push, dmgl_processor_instruction_or, NULL,
             /* F8 */
             NULL, NULL, NULL, dmgl_processor_instruction_ei,
             NULL, NULL, NULL, NULL,
