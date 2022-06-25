@@ -227,6 +227,10 @@ static bool dmgl_processor_instruction_pop(dmgl_processor_t *processor)
     switch(processor->instruction.cycle) {
         case 0:
             bank->low = dmgl_processor_pop(processor);
+
+            if(processor->instruction.opcode == 0xF1) {
+                bank->low &= 0xF0;
+            }
             break;
         case 1:
             bank->high = dmgl_processor_pop(processor);
@@ -593,7 +597,7 @@ static dmgl_error_e dmgl_processor_instruction(dmgl_processor_t *processor)
         if(processor->interrupt.enabling) {
 
             if(!--processor->interrupt.enabling) {
-                processor->interrupt.enabled = false;
+                processor->interrupt.enabled = true;
             }
         }
     }
