@@ -29,11 +29,6 @@ MAKE_FLAGS=--no-print-directory -C
 .PHONY: all
 all: release
 
-.PHONY: analyze
-analyze:
-	@cloc .
-	@cppcheck --enable=all --std=c11 --suppress=missingIncludeSystem .
-
 .PHONY: docs
 docs:
 	@rm -rf $(DOCS_DIRECTORY)html
