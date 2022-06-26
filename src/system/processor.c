@@ -789,6 +789,7 @@ static dmgl_error_e dmgl_processor_instruction(dmgl_processor_t *processor)
     if(!processor->instruction.cycle) {
         processor->instruction.address.word = processor->bank.pc.word;
         processor->instruction.opcode = dmgl_processor_fetch(processor);
+        processor->instruction.operand.word = 0x0000;
 
         if(processor->halt.bug) {
             processor->halt.bug = false;
@@ -849,6 +850,7 @@ static void dmgl_processor_interrupt(dmgl_processor_t *processor)
             processor->bank.pc.word = processor->interrupt.address.word;
             processor->instruction.address.word = processor->bank.pc.word;
             processor->instruction.opcode = dmgl_processor_fetch(processor);
+            processor->instruction.operand.word = 0x0000;
             processor->interrupt.cycle = 0;
             break;
         default:
@@ -933,6 +935,7 @@ void dmgl_processor_reset(dmgl_processor_t *processor)
 
     processor->instruction.address.word = processor->bank.pc.word;
     processor->instruction.opcode = dmgl_processor_fetch(processor);
+    processor->instruction.operand.word = 0x0000;
 }
 
 void dmgl_processor_uninitialize(dmgl_processor_t *processor)

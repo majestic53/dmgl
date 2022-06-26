@@ -37,6 +37,6 @@
 
 #define DMGL_MAJOR 0            /*!< Major version */
 #define DMGL_MINOR 1            /*!< Minor version */
-#define DMGL_PATCH 0x9285b28	/*!< Patch version */
+#define DMGL_PATCH 0x7d36b22	/*!< Patch version */
 
 #endif /* DMGL_DEFINE_H_ */
