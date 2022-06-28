@@ -20,30 +20,54 @@
  */
 
 /*!
- * @file test.h
- * @brief Common test defines.
+ * @file main.c
+ * @brief Common error test application.
  */
 
-#ifndef DMGL_TEST_H_
-#define DMGL_TEST_H_
+#include <error.h>
+#include <test.h>
 
-#include <define.h>
-#include <assert.h>
-
-/*!
- * @brief Print test result macro.
- * @param[in] _RESULT_ DMGL_SUCCESS on success, DMGL_FAILURE otherwise
- */
-#define DMGL_TEST_RESULT(_RESULT_) \
-    fprintf(((_RESULT_) != DMGL_SUCCESS) ? stderr : stdout, "[%s%s%s] %s\n", \
-        ((_RESULT_) != DMGL_SUCCESS) ? "\x1b[91m" : "\x1b[92m", \
-        ((_RESULT_) != DMGL_SUCCESS) ? "FAIL" : "PASS", \
-        "\x1b[0m", __FUNCTION__)
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /*!
- * @brief Test callback.
+ * @brief Test common error.
  * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
  */
-typedef dmgl_error_e (*dmgl_test_cb)(void);
+static dmgl_error_e dmgl_error_test(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
 
-#endif /* DMGL_TEST_H_ */
+    if(DMGL_ASSERT((DMGL_ERROR("Test") == DMGL_FAILURE)
+            && !strcmp(dmgl_error(), "Test (dmgl_error_test:main.c@42)"))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
+int main(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+    const dmgl_test_cb tests[] = {
+        dmgl_error_test,
+        };
+
+    for(int index = 0; index < (sizeof(tests) / sizeof(*(tests))); ++index) {
+
+        if(tests[index]() == DMGL_FAILURE) {
+            result = DMGL_FAILURE;
+        }
+    }
+
+    return result;
+}
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */

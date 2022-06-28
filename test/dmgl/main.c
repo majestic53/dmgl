@@ -31,8 +31,6 @@
  * @brief DMGL test context.
  */
 typedef struct {
-    const char *error;                  /*!< DMGL error string */
-    dmgl_version_t version;             /*!< DMGL version */
 
     struct {
         const dmgl_t *context;          /*!< DMGL bus context */
@@ -87,11 +85,6 @@ void dmgl_bus_uninitialize(void)
     g_test.bus.initialized = false;
 }
 
-const char *dmgl_error(void)
-{
-    return g_test.error;
-}
-
 dmgl_error_e dmgl_service_initialize(const dmgl_t *context, const char *title)
 {
     g_test.service.context = context;
@@ -116,20 +109,12 @@ void dmgl_service_uninitialize(void)
     g_test.service.initialized = false;
 }
 
-const dmgl_version_t *dmgl_version(void)
-{
-    return &g_test.version;
-}
-
 /*!
  * @brief Initilalize test context.
  */
 static inline void dmgl_test_initialize(void)
 {
     memset(&g_test, 0, sizeof(g_test));
-    g_test.version.major = DMGL_MAJOR;
-    g_test.version.minor = DMGL_MINOR;
-    g_test.version.patch = DMGL_PATCH;
 }
 
 /*!
@@ -231,58 +216,11 @@ exit:
     return result;
 }
 
-/*!
- * @brief Test DMGL error.
- * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
- */
-static dmgl_error_e dmgl_error_test(void)
-{
-    dmgl_error_e result = DMGL_SUCCESS;
-
-    dmgl_test_initialize();
-    g_test.error = "Test";
-
-    if(DMGL_ASSERT(!strcmp(dmgl_error(), "Test"))) {
-        result = DMGL_FAILURE;
-        goto exit;
-    }
-
-exit:
-    DMGL_TEST_RESULT(result);
-
-    return result;
-}
-
-/*!
- * @brief Test DMGL version.
- * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
- */
-static dmgl_error_e dmgl_version_test(void)
-{
-    dmgl_error_e result = DMGL_SUCCESS;
-    const dmgl_version_t *version = NULL;
-
-    dmgl_test_initialize();
-
-    if(DMGL_ASSERT((version = dmgl_version())
-            && (version->major == DMGL_MAJOR)
-            && (version->minor == DMGL_MINOR)
-            && (version->patch == DMGL_PATCH))) {
-        result = DMGL_FAILURE;
-        goto exit;
-    }
-
-exit:
-    DMGL_TEST_RESULT(result);
-
-    return result;
-}
-
 int main(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
     const dmgl_test_cb tests[] = {
-        dmgl_test, dmgl_error_test, dmgl_version_test,
+        dmgl_test,
         };
 
     for(int index = 0; index < (sizeof(tests) / sizeof(*(tests))); ++index) {

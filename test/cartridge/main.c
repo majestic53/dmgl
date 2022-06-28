@@ -62,15 +62,6 @@ static dmgl_test_cartridge_t g_test_cartridge = {}; /*!< Cartridge test context 
 extern "C" {
 #endif /* __cplusplus */
 
-uint8_t dmgl_checksum(const void *data, size_t begin, size_t end)
-{
-    g_test_cartridge.checksum.data = data;
-    g_test_cartridge.checksum.begin = begin;
-    g_test_cartridge.checksum.end = end;
-
-    return g_test_cartridge.checksum.value;
-}
-
 void *dmgl_buffer_allocate(size_t length)
 {
     void *result = NULL;
@@ -95,6 +86,20 @@ void *dmgl_buffer_allocate(size_t length)
 void dmgl_buffer_free(void *buffer)
 {
     return;
+}
+
+uint8_t dmgl_checksum(const void *data, size_t begin, size_t end)
+{
+    g_test_cartridge.checksum.data = data;
+    g_test_cartridge.checksum.begin = begin;
+    g_test_cartridge.checksum.end = end;
+
+    return g_test_cartridge.checksum.value;
+}
+
+dmgl_error_e dmgl_error_set(const char *file, const char *function, size_t line, const char *format, ...)
+{
+    return DMGL_FAILURE;
 }
 
 /*!

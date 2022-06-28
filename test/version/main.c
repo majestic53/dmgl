@@ -20,24 +20,56 @@
  */
 
 /*!
- * @file mock.h
- * @brief Common test mocks.
+ * @file main.c
+ * @brief Common version test application.
  */
 
-#ifndef DMGL_MOCK_H_
-#define DMGL_MOCK_H_
+#include <test.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-dmgl_error_e dmgl_error_set(const char *file, const char *function, size_t line, const char *format, ...)
+/*!
+ * @brief Test common version version.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
+static dmgl_error_e dmgl_version_test(void)
 {
-    return DMGL_FAILURE;
+    dmgl_error_e result = DMGL_SUCCESS;
+    const dmgl_version_t *version = NULL;
+
+    if(DMGL_ASSERT((version = dmgl_version())
+            && (version->major == DMGL_MAJOR)
+            && (version->minor == DMGL_MINOR)
+            && (version->patch == DMGL_PATCH))) {
+        result = DMGL_FAILURE;
+        goto exit;
+    }
+
+exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
+int main(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+    const dmgl_test_cb tests[] = {
+        dmgl_version_test,
+        };
+
+    for(int index = 0; index < (sizeof(tests) / sizeof(*(tests))); ++index) {
+
+        if(tests[index]() == DMGL_FAILURE) {
+            result = DMGL_FAILURE;
+        }
+    }
+
+    return result;
 }
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* DMGL_MOCK_H_ */

@@ -58,6 +58,11 @@ uint8_t dmgl_checksum(const void *data, size_t begin, size_t end)
     return g_test_bootloader.checksum.value;
 }
 
+dmgl_error_e dmgl_error_set(const char *file, const char *function, size_t line, const char *format, ...)
+{
+    return DMGL_FAILURE;
+}
+
 /*!
  * @brief Initilalize test context.
  */
