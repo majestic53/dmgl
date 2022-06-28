@@ -136,6 +136,28 @@ static bool dmgl_processor_instruction_and(dmgl_processor_t *processor)
 }
 
 /*!
+ * @brief Execute processor BIT instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
+static bool dmgl_processor_instruction_bit(dmgl_processor_t *processor)
+{
+    bool result = false;
+
+    switch(processor->instruction.cycle) {
+        case 1:
+
+            /* TODO */
+
+            break;
+        default:
+            break;
+    }
+
+    return result;
+}
+
+/*!
  * @brief Execute processor CCF instruction.
  * @param[in,out] processor Pointer to processor context
  * @return true on success, false otherwise
@@ -420,6 +442,28 @@ static bool dmgl_processor_instruction_push(dmgl_processor_t *processor)
 }
 
 /*!
+ * @brief Execute processor RES instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
+static bool dmgl_processor_instruction_res(dmgl_processor_t *processor)
+{
+    bool result = false;
+
+    switch(processor->instruction.cycle) {
+        case 1:
+
+            /* TODO */
+
+            break;
+        default:
+            break;
+    }
+
+    return result;
+}
+
+/*!
  * @brief Execute processor RLC instruction.
  * @param[in,out] processor Pointer to processor context
  * @return true on success, false otherwise
@@ -463,6 +507,28 @@ static bool dmgl_processor_instruction_scf(dmgl_processor_t *processor)
 }
 
 /*!
+ * @brief Execute processor SET instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
+static bool dmgl_processor_instruction_set(dmgl_processor_t *processor)
+{
+    bool result = false;
+
+    switch(processor->instruction.cycle) {
+        case 1:
+
+            /* TODO */
+
+            break;
+        default:
+            break;
+    }
+
+    return result;
+}
+
+/*!
  * @brief Execute processor STOP instruction.
  * @param[in,out] processor Pointer to processor context
  * @return true on success, false otherwise
@@ -481,6 +547,88 @@ static bool dmgl_processor_instruction_stop(dmgl_processor_t *processor)
             break;
         default:
             break;
+    }
+
+    return result;
+}
+
+/*!
+ * @brief Execute processor SWAP instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
+static bool dmgl_processor_instruction_swap(dmgl_processor_t *processor)
+{
+    uint8_t value = 0;
+    bool result = false;
+
+    switch(processor->instruction.cycle) {
+        case 1:
+
+            switch(processor->instruction.opcode) {
+                case 0x30: /* B */
+                    processor->bank.bc.high = (processor->bank.bc.high << 4) | (processor->bank.bc.high >> 4);
+                    value = processor->bank.bc.high;
+                    break;
+                case 0x31: /* C */
+                    processor->bank.bc.low = (processor->bank.bc.low << 4) | (processor->bank.bc.low >> 4);
+                    value = processor->bank.bc.low;
+                    break;
+                case 0x32: /* D */
+                    processor->bank.de.high = (processor->bank.de.high << 4) | (processor->bank.de.high >> 4);
+                    value = processor->bank.de.high;
+                    break;
+                case 0x33: /* E */
+                    processor->bank.de.low = (processor->bank.de.low << 4) | (processor->bank.de.low >> 4);
+                    value = processor->bank.de.low;
+                    break;
+                case 0x34: /* H */
+                    processor->bank.hl.high = (processor->bank.hl.high << 4) | (processor->bank.hl.high >> 4);
+                    value = processor->bank.hl.high;
+                    break;
+                case 0x35: /* L */
+                    processor->bank.hl.low = (processor->bank.hl.low << 4) | (processor->bank.hl.low >> 4);
+                    value = processor->bank.hl.low;
+                    break;
+                case 0x37: /* A */
+                    processor->bank.af.high = (processor->bank.af.high << 4) | (processor->bank.af.high >> 4);
+                    value = processor->bank.af.high;
+                    break;
+                default:
+                    processor->instruction.operand.low = dmgl_bus_read(processor->bank.hl.word);
+                    result = true;
+                    break;
+            }
+            break;
+        case 2:
+
+            switch(processor->instruction.opcode) {
+                case 0x36: /* (HL) */
+                    processor->instruction.operand.low = (processor->instruction.operand.low << 4) | (processor->instruction.operand.low >> 4);
+                    result = true;
+                    break;
+                default:
+                    break;
+            }
+        case 3:
+
+            switch(processor->instruction.opcode) {
+                case 0x36: /* (HL) */
+                    dmgl_bus_write(processor->bank.hl.word, value = processor->instruction.operand.low);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
+    }
+
+    if(!result) {
+        processor->bank.af.carry = false;
+        processor->bank.af.half_carry = false;
+        processor->bank.af.subtract = false;
+        processor->bank.af.zero = !value;
     }
 
     return result;
@@ -678,83 +826,83 @@ static dmgl_error_e dmgl_processor_instruction(dmgl_processor_t *processor)
             NULL, NULL, NULL, NULL,
             NULL, NULL, NULL, NULL,
             /* 30 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_swap, dmgl_processor_instruction_swap, dmgl_processor_instruction_swap, dmgl_processor_instruction_swap,
+            dmgl_processor_instruction_swap, dmgl_processor_instruction_swap, dmgl_processor_instruction_swap, dmgl_processor_instruction_swap,
             /* 38 */
             NULL, NULL, NULL, NULL,
             NULL, NULL, NULL, NULL,
             /* 40 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,
+            dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,
             /* 48 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,
+            dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,
             /* 50 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,
+            dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,
             /* 58 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,
+            dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,
             /* 60 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,
+            dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,
             /* 68 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,
+            dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,
             /* 70 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,
+            dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,
             /* 78 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,
+            dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,
             /* 80 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res,
+            dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res,
             /* 88 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res,
+            dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res,
             /* 90 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res,
+            dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res,
             /* 98 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res,
+            dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res,
             /* A0 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res,
+            dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res,
             /* A8 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res,
+            dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res,
             /* B0 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res,
+            dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res,
             /* B8 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res,
+            dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res, dmgl_processor_instruction_res,
             /* C0 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set,
+            dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set,
             /* C8 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set,
+            dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set,
             /* D0 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set,
+            dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set,
             /* D8 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set,
+            dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set,
             /* E0 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set,
+            dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set,
             /* E8 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set,
+            dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set,
             /* F0 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set,
+            dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set,
             /* F8 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set,
+            dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set, dmgl_processor_instruction_set,
         };
 
     switch(processor->instruction.cycle) {
@@ -789,6 +937,7 @@ static dmgl_error_e dmgl_processor_instruction(dmgl_processor_t *processor)
     if(!processor->instruction.cycle) {
         processor->instruction.address.word = processor->bank.pc.word;
         processor->instruction.opcode = dmgl_processor_fetch(processor);
+        processor->instruction.extended = (processor->instruction.opcode == 0xCB);
         processor->instruction.operand.word = 0x0000;
 
         if(processor->halt.bug) {
@@ -850,6 +999,7 @@ static void dmgl_processor_interrupt(dmgl_processor_t *processor)
             processor->bank.pc.word = processor->interrupt.address.word;
             processor->instruction.address.word = processor->bank.pc.word;
             processor->instruction.opcode = dmgl_processor_fetch(processor);
+            processor->instruction.extended = (processor->instruction.opcode == 0xCB);
             processor->instruction.operand.word = 0x0000;
             processor->interrupt.cycle = 0;
             break;
@@ -935,6 +1085,7 @@ void dmgl_processor_reset(dmgl_processor_t *processor)
 
     processor->instruction.address.word = processor->bank.pc.word;
     processor->instruction.opcode = dmgl_processor_fetch(processor);
+    processor->instruction.extended = (processor->instruction.opcode == 0xCB);
     processor->instruction.operand.word = 0x0000;
 }
 
