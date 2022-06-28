@@ -115,14 +115,14 @@ dmgl_error_e dmgl_cartridge_initialize(dmgl_cartridge_t *cartridge, const uint8_
     header = (const dmgl_cartridge_header_t *)&data[0x0100];
     count = RAM_COUNT[header->ram];
 
-    if((cartridge->ram.bank = dmgl_buffer_allocate(count * sizeof(*cartridge->ram.bank))) == NULL) {
+    if((cartridge->ram.bank = (uint8_t **)dmgl_buffer_allocate(count * sizeof(*cartridge->ram.bank))) == NULL) {
         result = DMGL_ERROR("Cartridge failed to allocate RAM banks -- %zu", count);
         goto exit;
     }
 
     for(index = 0; index < count; ++index) {
 
-        if((cartridge->ram.bank[index] = dmgl_buffer_allocate(8 * 1024 * sizeof(*cartridge->ram.bank[index]))) == NULL) {
+        if((cartridge->ram.bank[index] = (uint8_t *)dmgl_buffer_allocate(8 * 1024 * sizeof(*cartridge->ram.bank[index]))) == NULL) {
             result = DMGL_ERROR("Cartridge failed to allocate RAM bank -- %zu", index);
             goto exit;
         }
@@ -133,7 +133,7 @@ dmgl_error_e dmgl_cartridge_initialize(dmgl_cartridge_t *cartridge, const uint8_
     cartridge->ram.count = count;
     count = ROM_COUNT[header->rom];
 
-    if((cartridge->rom.bank = dmgl_buffer_allocate(count * sizeof(*cartridge->rom.bank))) == NULL) {
+    if((cartridge->rom.bank = (const uint8_t **)dmgl_buffer_allocate(count * sizeof(*cartridge->rom.bank))) == NULL) {
         result = DMGL_ERROR("Cartridge failed to allocate ROM banks -- %zu", count);
         goto exit;
     }
