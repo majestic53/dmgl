@@ -620,11 +620,71 @@ static bool dmgl_processor_instruction_res(dmgl_processor_t *processor)
 }
 
 /*!
+ * @brief Execute processor RL instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
+static bool dmgl_processor_instruction_rl(dmgl_processor_t *processor)
+{
+    bool result = true;
+
+    switch(processor->instruction.cycle) {
+
+        /* TODO */
+
+        default:
+            break;
+    }
+
+    return result;
+}
+
+/*!
  * @brief Execute processor RLC instruction.
  * @param[in,out] processor Pointer to processor context
  * @return true on success, false otherwise
  */
 static bool dmgl_processor_instruction_rlc(dmgl_processor_t *processor)
+{
+    bool result = true;
+
+    switch(processor->instruction.cycle) {
+
+        /* TODO */
+
+        default:
+            break;
+    }
+
+    return result;
+}
+
+/*!
+ * @brief Execute processor RR instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
+static bool dmgl_processor_instruction_rr(dmgl_processor_t *processor)
+{
+    bool result = true;
+
+    switch(processor->instruction.cycle) {
+
+        /* TODO */
+
+        default:
+            break;
+    }
+
+    return result;
+}
+
+/*!
+ * @brief Execute processor RRC instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
+static bool dmgl_processor_instruction_rrc(dmgl_processor_t *processor)
 {
     bool result = true;
 
@@ -783,6 +843,66 @@ static bool dmgl_processor_instruction_set(dmgl_processor_t *processor)
                     break;
             }
             break;
+        default:
+            break;
+    }
+
+    return result;
+}
+
+/*!
+ * @brief Execute processor SLA instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
+static bool dmgl_processor_instruction_sla(dmgl_processor_t *processor)
+{
+    bool result = true;
+
+    switch(processor->instruction.cycle) {
+
+        /* TODO */
+
+        default:
+            break;
+    }
+
+    return result;
+}
+
+/*!
+ * @brief Execute processor SRA instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
+static bool dmgl_processor_instruction_sra(dmgl_processor_t *processor)
+{
+    bool result = true;
+
+    switch(processor->instruction.cycle) {
+
+        /* TODO */
+
+        default:
+            break;
+    }
+
+    return result;
+}
+
+/*!
+ * @brief Execute processor SRL instruction.
+ * @param[in,out] processor Pointer to processor context
+ * @return true on success, false otherwise
+ */
+static bool dmgl_processor_instruction_srl(dmgl_processor_t *processor)
+{
+    bool result = true;
+
+    switch(processor->instruction.cycle) {
+
+        /* TODO */
+
         default:
             break;
     }
@@ -1058,29 +1178,29 @@ static dmgl_error_e dmgl_processor_instruction(dmgl_processor_t *processor)
             NULL, NULL, NULL, NULL,
         }, instruction_extended[] = {
             /* 00 */
-            dmgl_processor_instruction_rlc, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_rlc, dmgl_processor_instruction_rlc, dmgl_processor_instruction_rlc, dmgl_processor_instruction_rlc,
+            dmgl_processor_instruction_rlc, dmgl_processor_instruction_rlc, dmgl_processor_instruction_rlc, dmgl_processor_instruction_rlc,
             /* 08 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_rrc, dmgl_processor_instruction_rrc, dmgl_processor_instruction_rrc, dmgl_processor_instruction_rrc,
+            dmgl_processor_instruction_rrc, dmgl_processor_instruction_rrc, dmgl_processor_instruction_rrc, dmgl_processor_instruction_rrc,
             /* 10 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_rl, dmgl_processor_instruction_rl, dmgl_processor_instruction_rl, dmgl_processor_instruction_rl,
+            dmgl_processor_instruction_rl, dmgl_processor_instruction_rl, dmgl_processor_instruction_rl, dmgl_processor_instruction_rl,
             /* 18 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_rr, dmgl_processor_instruction_rr, dmgl_processor_instruction_rr, dmgl_processor_instruction_rr,
+            dmgl_processor_instruction_rr, dmgl_processor_instruction_rr, dmgl_processor_instruction_rr, dmgl_processor_instruction_rr,
             /* 20 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_sla, dmgl_processor_instruction_sla, dmgl_processor_instruction_sla, dmgl_processor_instruction_sla,
+            dmgl_processor_instruction_sla, dmgl_processor_instruction_sla, dmgl_processor_instruction_sla, dmgl_processor_instruction_sla,
             /* 28 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_sra, dmgl_processor_instruction_sra, dmgl_processor_instruction_sra, dmgl_processor_instruction_sra,
+            dmgl_processor_instruction_sra, dmgl_processor_instruction_sra, dmgl_processor_instruction_sra, dmgl_processor_instruction_sra,
             /* 30 */
             dmgl_processor_instruction_swap, dmgl_processor_instruction_swap, dmgl_processor_instruction_swap, dmgl_processor_instruction_swap,
             dmgl_processor_instruction_swap, dmgl_processor_instruction_swap, dmgl_processor_instruction_swap, dmgl_processor_instruction_swap,
             /* 38 */
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
+            dmgl_processor_instruction_srl, dmgl_processor_instruction_srl, dmgl_processor_instruction_srl, dmgl_processor_instruction_srl,
+            dmgl_processor_instruction_srl, dmgl_processor_instruction_srl, dmgl_processor_instruction_srl, dmgl_processor_instruction_srl,
             /* 40 */
             dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,
             dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit, dmgl_processor_instruction_bit,

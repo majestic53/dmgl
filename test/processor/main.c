@@ -614,6 +614,78 @@ static dmgl_error_e dmgl_test_processor_instruction_res(void)
 }
 
 /*!
+ * @brief Test processor RL instruction.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
+static dmgl_error_e dmgl_test_processor_instruction_rl(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+
+    /* TODO */
+
+//exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
+/*!
+ * @brief Test processor RLC instruction.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
+static dmgl_error_e dmgl_test_processor_instruction_rlc(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+
+    /* TODO */
+
+//exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
+/*!
+ * @brief Test processor RR instruction.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
+static dmgl_error_e dmgl_test_processor_instruction_rr(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+
+    /* TODO */
+
+//exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
+/*!
+ * @brief Test processor RRC instruction.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
+static dmgl_error_e dmgl_test_processor_instruction_rrc(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+
+    /* TODO */
+
+//exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
+/*!
  * @brief Test processor SCF instruction.
  * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
  */
@@ -636,6 +708,60 @@ static dmgl_error_e dmgl_test_processor_instruction_scf(void)
  * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
  */
 static dmgl_error_e dmgl_test_processor_instruction_set(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+
+    /* TODO */
+
+//exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
+/*!
+ * @brief Test processor SLA instruction.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
+static dmgl_error_e dmgl_test_processor_instruction_sla(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+
+    /* TODO */
+
+//exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
+/*!
+ * @brief Test processor SRA instruction.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
+static dmgl_error_e dmgl_test_processor_instruction_sra(void)
+{
+    dmgl_error_e result = DMGL_SUCCESS;
+
+    dmgl_test_initialize();
+
+    /* TODO */
+
+//exit:
+    DMGL_TEST_RESULT(result);
+
+    return result;
+}
+
+/*!
+ * @brief Test processor SRL instruction.
+ * @return DMGL_SUCCESS on success, DMGL_FAILURE otherwise
+ */
+static dmgl_error_e dmgl_test_processor_instruction_srl(void)
 {
     dmgl_error_e result = DMGL_SUCCESS;
 
@@ -959,9 +1085,11 @@ int main(void)
         dmgl_test_processor_clock, dmgl_test_processor_initialize, dmgl_test_processor_instruction_and, dmgl_test_processor_instruction_bit,
         dmgl_test_processor_instruction_ccf, dmgl_test_processor_instruction_cpl, dmgl_test_processor_instruction_di, dmgl_test_processor_instruction_ei,
         dmgl_test_processor_instruction_halt, dmgl_test_processor_instruction_nop, dmgl_test_processor_instruction_or, dmgl_test_processor_instruction_pop,
-        dmgl_test_processor_instruction_push, dmgl_test_processor_instruction_res, dmgl_test_processor_instruction_scf, dmgl_test_processor_instruction_set,
-        dmgl_test_processor_instruction_stop, dmgl_test_processor_instruction_xor, dmgl_test_processor_interrupt, dmgl_test_processor_read,
-        dmgl_test_processor_reset, dmgl_test_processor_uninitialize, dmgl_test_processor_write,
+        dmgl_test_processor_instruction_push, dmgl_test_processor_instruction_res, dmgl_test_processor_instruction_rl, dmgl_test_processor_instruction_rlc,
+        dmgl_test_processor_instruction_rr, dmgl_test_processor_instruction_rrc, dmgl_test_processor_instruction_scf, dmgl_test_processor_instruction_set,
+        dmgl_test_processor_instruction_sla, dmgl_test_processor_instruction_sra, dmgl_test_processor_instruction_srl, dmgl_test_processor_instruction_stop,
+        dmgl_test_processor_instruction_xor, dmgl_test_processor_interrupt, dmgl_test_processor_read, dmgl_test_processor_reset,
+        dmgl_test_processor_uninitialize, dmgl_test_processor_write,
         };
 
     for(int index = 0; index < (sizeof(tests) / sizeof(*(tests))); ++index) {
