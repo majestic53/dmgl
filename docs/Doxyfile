@@ -21,6 +21,6 @@ MACRO_EXPANSION        = YES
 EXPAND_ONLY_PREDEF     = YES
 HAVE_DOT               = YES
 CALL_GRAPH             = YES
-CALLER_GRAPH           = YES
+CALLER_GRAPH           = NO
 DISABLE_INDEX          = YES
 GENERATE_TREEVIEW      = YES
