@@ -2,6 +2,8 @@
 
 [![License: MIT](https://shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/majestic53/dmgl/blob/master/LICENSE.md) [![Build Status](https://github.com/majestic53/dmgl/workflows/Build/badge.svg)](https://github.com/majestic53/dmgl/actions/workflows/build.yml) [![Test Status](https://github.com/majestic53/dmgl/workflows/Test/badge.svg)](https://github.com/majestic53/dmgl/actions/workflows/test.yml)
 
+__NOTE__: This is an archived repo. `DMGL` has been moved to [https://sr.ht/~dajolly/dmgl/](https://sr.ht/~dajolly/dmgl/). All further development will happen there.
+
 ### A lightweight Gameboy emulator, written in C.
 
 The goal of `DMGL` is to emulate the original Gameboy hardware with enough accuracy to run most common games, while being performant and natively compilable across multiple platforms.
